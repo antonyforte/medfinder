@@ -1,0 +1,409 @@
+---
+// src/pages/register.astro
+---
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta name="google-signin-client_id" content="555588882565-hbbjcokjddqkq2ficbn8cqafk5btc153.apps.googleusercontent.com">
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
+
+  <title>Register - Med Finder</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0B9A7A;
+      --primary-dark: #097F66;
+      --secondary: #F5F9F8;
+      --text-dark: #16403C;
+      --text-light: #6A8784;
+      --accent: #E6F5F2;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      color: var(--text-dark);
+      background-color: var(--secondary);
+    }
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      transition: background-color 0.3s;
+      width: 100%;
+    }
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+    }
+    .form-input {
+      border: 1px solid #E2E8F0;
+      border-radius: 0.5rem;
+      padding: 0.75rem 1rem;
+      width: 100%;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(11, 154, 122, 0.2);
+    }
+    .active-tab {
+      background-color: var(--primary);
+      color: white;
+    }
+  </style>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/inter-ui/3.19.3/inter.css" rel="stylesheet">
+</head>
+<body class="min-h-screen flex flex-col">
+  <header class="bg-white shadow-sm">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center">
+        <a href="/" class="flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-green-600">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+          </svg>
+          <span class="ml-2 text-xl font-bold" style="color: var(--primary);">Med Finder</span>
+        </a>
+      </div>
+      <nav class="hidden md:flex space-x-8">
+        <a href="/" class="font-medium text-gray-600 hover:text-gray-900">Início</a>
+        <a href="/#features" class="font-medium text-gray-600 hover:text-gray-900">Benefícios</a>
+        <a href="/#how-it-works" class="font-medium text-gray-600 hover:text-gray-900">Como funciona?</a>
+        <a href="/#testimonials" class="font-medium text-gray-600 hover:text-gray-900">Médico & Clínica</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flex-grow flex items-center justify-center py-12 px-4">
+    <div class="bg-white rounded-lg shadow-xl overflow-hidden max-w-md w-full">
+      <div class="px-6 py-8">
+        <div class="text-center mb-6">
+          <h1 class="text-2xl font-bold mb-2">Crie sua Conta</h1>
+          <p style="color: var(--text-light);">Junte-se a Med Finder</p>
+        </div>
+        
+        <!-- Account Type Switcher -->
+        <div class="mb-6">
+          <div class="flex bg-gray-100 rounded-lg p-1">
+            <button type="button" id="patientTab" class="w-1/2 py-2 text-sm font-medium rounded-md transition-colors active-tab">Paciente</button>
+            <button type="button" id="clinicTab" class="w-1/2 py-2 text-sm font-medium rounded-md transition-colors">Clínica</button>
+          </div>
+        </div>
+
+        <!-- Patient Registration Form -->
+        <form id="patientForm" class="space-y-5">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label for="patientFirstName" class="block mb-2 font-medium">Nome</label>
+              <input type="text" id="patientFirstName" name="firstName" class="form-input" placeholder="John" required>
+            </div>
+            <div>
+              <label for="patientLastName" class="block mb-2 font-medium">Sobrenome</label>
+              <input type="text" id="patientLastName" name="lastName" class="form-input" placeholder="Doe" required>
+            </div>
+          </div>
+          
+          <div>
+            <label for="patientEmail" class="block mb-2 font-medium">Email</label>
+            <input type="email" id="patientEmail" name="email" class="form-input" placeholder="your@email.com" required>
+          </div>
+          
+          <div>
+            <label for="patientPhone" class="block mb-2 font-medium">Número</label>
+            <input type="tel" id="patientPhone" name="phone" class="form-input" placeholder="(123) 456-7890">
+          </div>
+          
+          <div>
+            <label for="patientDateOfBirth" class="block mb-2 font-medium">Data de Nascimento</label>
+            <input type="date" id="patientDateOfBirth" name="dateOfBirth" class="form-input">
+          </div>
+          
+          <div>
+            <label for="patientPassword" class="block mb-2 font-medium">Senha</label>
+            <input type="password" id="patientPassword" name="password" class="form-input" placeholder="••••••••" required>
+            <p class="mt-1 text-xs text-gray-500">Necessário ser no mínimo 8 caracteres com letras e números</p>
+          </div>
+          
+          <div>
+            <label for="patientConfirmPassword" class="block mb-2 font-medium">Confirmar Senha</label>
+            <input type="password" id="patientConfirmPassword" name="confirmPassword" class="form-input" placeholder="••••••••" required>
+          </div>
+          
+          <div class="flex items-center">
+            <input type="checkbox" id="patientTerms" name="terms" class="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500" required>
+            <label for="patientTerms" class="ml-2 block text-sm text-gray-700">
+              I agree to the <a href="/terms" class="hover:underline" style="color: var(--primary);">Terms of Service</a> and <a href="/privacy" class="hover:underline" style="color: var(--primary);">Privacy Policy</a>
+            </label>
+          </div>
+          
+          <button type="submit" class="btn-primary">Criar Conta</button>
+        </form>
+        
+        <!-- Clinic Registration Form (Hidden by default) -->
+        <form id="clinicForm" class="space-y-5 hidden">
+          <div>
+            <label for="clinicName" class="block mb-2 font-medium">Nome da Clínica</label>
+            <input type="text" id="clinicName" name="clinicName" class="form-input" placeholder="Med Clinic Name" required>
+          </div>
+          
+          <div>
+            <label for="clinicType" class="block mb-2 font-medium">Especialidade da Clínica</label>
+            <select id="clinicType" name="clinicType" class="form-input" required>
+              <option value="">Select clinic type</option>
+              <option value="general">General Practice</option>
+              <option value="dental">Dental Clinic</option>
+              <option value="specialist">Specialist Clinic</option>
+              <option value="hospital">Hospital</option>
+              <option value="pharmacy">Pharmacy</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          
+          <div>
+            <label for="clinicEmail" class="block mb-2 font-medium">Email Comercial</label>
+            <input type="email" id="clinicEmail" name="email" class="form-input" placeholder="contact@yourclinic.com" required>
+          </div>
+          
+          <div>
+            <label for="clinicPhone" class="block mb-2 font-medium">Telefone Comercial</label>
+            <input type="tel" id="clinicPhone" name="phone" class="form-input" placeholder="(123) 456-7890" required>
+          </div>
+          
+          <div>
+            <label for="clinicAddress" class="block mb-2 font-medium">Endereço</label>
+            <input type="text" id="clinicAddress" name="address" class="form-input" placeholder="123 Medical Ave" required>
+          </div>
+          
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label for="clinicCity" class="block mb-2 font-medium">Cidade</label>
+              <input type="text" id="clinicCity" name="city" class="form-input" required>
+            </div>
+            <div>
+              <label for="clinicPostal" class="block mb-2 font-medium">CEP</label>
+              <input type="text" id="clinicPostal" name="postalCode" class="form-input" required>
+            </div>
+          </div>
+          
+          <div>
+            <label for="clinicLicense" class="block mb-2 font-medium">Licença Médica (CNES)</label>
+            <input type="text" id="clinicLicense" name="license" class="form-input" required>
+            <p class="mt-1 text-xs text-gray-500">Seu número de Liceça Médica</p>
+          </div>
+          
+          <div>
+            <label for="clinicPassword" class="block mb-2 font-medium">Senha</label>
+            <input type="password" id="clinicPassword" name="password" class="form-input" placeholder="••••••••" required>
+            <p class="mt-1 text-xs text-gray-500">Necessário ser no mínimo 8 caracteres com letras e números</p>
+          </div>
+          
+          <div>
+            <label for="clinicConfirmPassword" class="block mb-2 font-medium">Confirmar Senha</label>
+            <input type="password" id="clinicConfirmPassword" name="confirmPassword" class="form-input" placeholder="••••••••" required>
+          </div>
+          
+          <div class="flex items-center">
+            <input type="checkbox" id="clinicTerms" name="terms" class="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500" required>
+            <label for="clinicTerms" class="ml-2 block text-sm text-gray-700">
+              I agree to the <a href="/terms" class="hover:underline" style="color: var(--primary);">Terms of Service</a> and <a href="/privacy" class="hover:underline" style="color: var(--primary);">Privacy Policy</a>
+            </label>
+          </div>
+          
+          <button type="submit" class="btn-primary">Criar Conta</button>
+        </form>
+        
+        <div class="text-center mt-4">
+          <p class="text-sm text-gray-600">Already have an account? <a href="/login" class="hover:underline" style="color: var(--primary);">Log in</a></p>
+        </div>
+        
+        <div class="mt-6">
+          <div class="relative">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t border-gray-300"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+              <span class="px-2 bg-white text-gray-500">Or register with</span>
+            </div>
+          </div>
+          
+          <div class="mt-6 grid grid-cols-2 gap-3">
+            <div class="g-signin2 flex items-center justify-center px-4 py-2"></div>
+            <a href="#" class="flex items-center justify-center px-4 py-2 border rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="mr-2" viewBox="0 0 16 16">
+                <path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951z"/>
+              </svg>
+              Facebook
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="bg-gray-800 text-gray-300 py-6">
+    <div class="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+      <p>© 2025 Med Finder. All rights reserved.</p>
+      <div class="flex space-x-4 mt-4 md:mt-0">
+        <a href="#" class="text-gray-300 hover:text-white">Privacy Policy</a>
+        <a href="#" class="text-gray-300 hover:text-white">Terms of Service</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Tab switching functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const patientTab = document.getElementById('patientTab');
+      const clinicTab = document.getElementById('clinicTab');
+      const patientForm = document.getElementById('patientForm');
+      const clinicForm = document.getElementById('clinicForm');
+      
+      // Set patient tab as active by default
+      patientTab.classList.add('active-tab');
+      
+      // Patient tab click event
+      patientTab.addEventListener('click', function() {
+        patientTab.classList.add('active-tab');
+        clinicTab.classList.remove('active-tab');
+        patientForm.classList.remove('hidden');
+        clinicForm.classList.add('hidden');
+      });
+      
+      // Clinic tab click event
+      clinicTab.addEventListener('click', function() {
+        clinicTab.classList.add('active-tab');
+        patientTab.classList.remove('active-tab');
+        clinicForm.classList.remove('hidden');
+        patientForm.classList.add('hidden');
+      });
+      
+      // Patient form submission
+      patientForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const firstName = document.getElementById('patientFirstName').value;
+        const lastName = document.getElementById('patientLastName').value;
+        const email = document.getElementById('patientEmail').value;
+        const password = document.getElementById('patientPassword').value;
+        const confirmPassword = document.getElementById('patientConfirmPassword').value;
+        const terms = document.getElementById('patientTerms').checked;
+        
+        // Simple validation
+        if (!firstName || !lastName || !email || !password) {
+          alert('Please fill out all required fields');
+          return;
+        }
+        
+        // Password validation
+        if (password.length < 8) {
+          alert('Password must be at least 8 characters long');
+          return;
+        }
+        
+        // Check if password has both letters and numbers
+        if (!(/[A-Za-z]/.test(password) && /[0-9]/.test(password))) {
+          alert('Password must contain both letters and numbers');
+          return;
+        }
+        
+        // Check if passwords match
+        if (password !== confirmPassword) {
+          alert('Passwords do not match');
+          return;
+        }
+        
+        // Check terms agreement
+        if (!terms) {
+          alert('You must agree to the Terms of Service and Privacy Policy');
+          return;
+        }
+        
+        // Simulate registration - in a real app, this would be an API call
+        const userObj = {
+          firstName: firstName,
+          lastName: lastName,
+          email: email,
+          userType: 'patient',
+          isLoggedIn: true
+        };
+        
+        // Store user data in localStorage for demonstration
+        localStorage.setItem('medFinderUser', JSON.stringify(userObj));
+        
+        // Redirect to dashboard after successful registration
+        window.location.href = '/dashboard';
+      });
+      
+      // Clinic form submission
+      clinicForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const clinicName = document.getElementById('clinicName').value;
+        const clinicType = document.getElementById('clinicType').value;
+        const email = document.getElementById('clinicEmail').value;
+        const phone = document.getElementById('clinicPhone').value;
+        const address = document.getElementById('clinicAddress').value;
+        const city = document.getElementById('clinicCity').value;
+        const postalCode = document.getElementById('clinicPostal').value;
+        const license = document.getElementById('clinicLicense').value;
+        const password = document.getElementById('clinicPassword').value;
+        const confirmPassword = document.getElementById('clinicConfirmPassword').value;
+        const terms = document.getElementById('clinicTerms').checked;
+        
+        // Simple validation for required fields
+        if (!clinicName || !clinicType || !email || !phone || !address || !city || !postalCode || !license || !password) {
+          alert('Please fill out all required fields');
+          return;
+        }
+        
+        // Password validation
+        if (password.length < 8) {
+          alert('Password must be at least 8 characters long');
+          return;
+        }
+        
+        // Check if password has both letters and numbers
+        if (!(/[A-Za-z]/.test(password) && /[0-9]/.test(password))) {
+          alert('Password must contain both letters and numbers');
+          return;
+        }
+        
+        // Check if passwords match
+        if (password !== confirmPassword) {
+          alert('Passwords do not match');
+          return;
+        }
+        
+        // Check terms agreement
+        if (!terms) {
+          alert('You must agree to the Terms of Service and Privacy Policy');
+          return;
+        }
+        
+        // Simulate registration - in a real app, this would be an API call
+        const clinicObj = {
+          clinicName: clinicName,
+          clinicType: clinicType,
+          email: email,
+          phone: phone,
+          address: address,
+          city: city,
+          postalCode: postalCode,
+          license: license,
+          userType: 'clinic',
+          isLoggedIn: true
+        };
+        
+        // Store clinic data in localStorage for demonstration
+        localStorage.setItem('medFinderUser', JSON.stringify(clinicObj));
+        
+        // Redirect to dashboard after successful registration
+        window.location.href = '/dashboard';
+      });
+    });
+  </script>
+</body>
+</html>

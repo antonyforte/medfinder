@@ -1,0 +1,712 @@
+---
+/* ─────────────────────────────────────────────────────────────────────────────
+   Simulated data (replace with real API calls once your backend is ready)
+───────────────────────────────────────────────────────────────────────────── */
+const providers = [
+  {
+    id: 1,
+    name: "Dr. Sarah Johnson",
+    specialty: "Cardiologist",
+    type: "doctor",
+    rating: 4.9,
+    reviews: 127,
+    location: "Downtown Medical Center",
+    availability: "Available Today",
+    price: "$120 consultation",
+    initials: "SJ",
+  },
+  {
+    id: 2,
+    name: "Metro Care Clinic",
+    specialty: "Family Medicine",
+    type: "clinic",
+    rating: 4.7,
+    reviews: 89,
+    location: "Central District",
+    availability: "Open 24/7",
+    price: "Multiple specialists",
+    initials: "MC",
+  },
+  {
+    id: 3,
+    name: "Dr. Michael Chen",
+    specialty: "Dermatologist",
+    type: "doctor",
+    rating: 4.8,
+    reviews: 203,
+    location: "Skin Health Institute",
+    availability: "Next available: Tomorrow",
+    price: "$95 consultation",
+    initials: "MC",
+  },
+  {
+    id: 4,
+    name: "Harmony Children's Clinic",
+    specialty: "Pediatrics",
+    type: "clinic",
+    rating: 4.9,
+    reviews: 156,
+    location: "Westside Medical Plaza",
+    availability: "Mon–Fri 8 AM–6 PM",
+    price: "Child-friendly environment",
+    initials: "HC",
+  },
+];
+
+const chatMessages = [
+  {
+    id: 1,
+    sender: "Dr. Sarah Johnson",
+    time: "2:30 PM",
+    preview: "Your appointment is confirmed for tomorrow at 10 AM",
+    messages: [
+      {
+        content:
+          "Hello! I wanted to confirm your appointment for tomorrow at 10 AM for your cardiology consultation.",
+        sent: false,
+      },
+      {
+        content:
+          "Yes, that works perfectly for me. Should I bring any specific documents?",
+        sent: true,
+      },
+      {
+        content:
+          "Please bring your insurance card, a list of current medications, and any previous cardiac test results if you have them.",
+        sent: false,
+      },
+      { content: "Perfect, I'll have everything ready. Thank you!", sent: true },
+    ],
+  },
+  {
+    id: 2,
+    sender: "Metro Care Clinic",
+    time: "1:45 PM",
+    preview: "Thank you for your visit today. Here are your test results...",
+    messages: [],
+  },
+  {
+    id: 3,
+    sender: "Dr. Michael Chen",
+    time: "Yesterday",
+    preview: "Please remember to apply the prescribed medication twice daily",
+    messages: [],
+  },
+];
+
+const userProfile = {
+  firstName: "John",
+  lastName: "Doe",
+  email: "john.doe@example.com",
+  phone: "+1 (555) 123-4567",
+  birthDate: "1990-01-15",
+  address: "123 Main Street, City, State 12345",
+  insurance: "Blue Cross Blue Shield",
+  bloodType: "A+",
+  allergies: "Penicillin, Shellfish",
+  medications: "Lisinopril 10 mg daily",
+  initials: "JD",
+};
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MedFinder</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/umd/lucide.js"></script>
+    <style>
+      :root {
+        --primary: #0B9A7A;
+        --primary-dark: #097F66;
+        --secondary: #F5F9F8;
+        --text-dark: #16403C;
+        --text-light: #6A8784;
+        --accent: #E6F5F2;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        min-height: 100vh;
+        color: var(--text-dark);
+      }
+
+      .container {
+        display: flex;
+        min-height: 100vh;
+        max-width: 1400px;
+        margin: 0 auto;
+        background: white;
+        box-shadow: 0 0 50px rgba(0,0,0,0.1);
+      }
+
+      /* ─── Sidebar ────────────────────────────────────────────────────────── */
+      .sidebar {
+        width: 280px;
+        background: linear-gradient(180deg, var(--text-dark) 0%, var(--primary-dark) 100%);
+        padding: 2rem 0;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+      }
+
+      .logo {
+        padding: 0 2rem;
+        margin-bottom: 3rem;
+      }
+
+      .logo h1 {
+        color: white;
+        font-size: 1.8rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .logo .icon {
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(45deg, var(--primary), var(--accent));
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .nav-menu {
+        flex: 1;
+        padding: 0 1rem;
+      }
+
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        margin: 0.5rem 0;
+        color: var(--text-light);
+        cursor: pointer;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .nav-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        transform: translateX(5px);
+      }
+
+      .nav-item.active {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        box-shadow: 0 4px 15px rgba(11, 154, 122, 0.3);
+      }
+
+      .nav-item i {
+        width: 20px;
+        height: 20px;
+      }
+
+      .logout-section {
+        padding: 0 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding-top: 1rem;
+      }
+
+      /* ─── Main Content ───────────────────────────────────────────────────── */
+      .main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: var(--secondary);
+      }
+
+      .header {
+        background: white;
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid var(--accent);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .search-bar {
+        flex: 1;
+        max-width: 500px;
+        position: relative;
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 0.75rem 1rem 0.75rem 3rem;
+        border: 2px solid var(--accent);
+        border-radius: 25px;
+        font-size: 1rem;
+        outline: none;
+        transition: all 0.3s ease;
+      }
+
+      .search-input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(11, 154, 122, 0.1);
+      }
+
+      .search-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-light);
+      }
+
+      .user-profile {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .notification-btn {
+        position: relative;
+        padding: 0.5rem;
+        border: none;
+        background: none;
+        cursor: pointer;
+        border-radius: 50%;
+        transition: background 0.3s ease;
+      }
+
+      .notification-btn:hover {
+        background: var(--secondary);
+      }
+
+      .notification-badge {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 8px;
+        height: 8px;
+        background: #e74c3c;
+        border-radius: 50%;
+      }
+
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+      }
+
+      .content-area {
+        flex: 1;
+        padding: 2rem;
+        overflow-y: auto;
+      }
+
+      .page {
+        display: none;
+      }
+
+      .page.active {
+        display: block;
+      }
+
+      .welcome-section {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        padding: 3rem;
+        border-radius: 20px;
+        margin-bottom: 2rem;
+        text-align: center;
+      }
+
+      .welcome-section h2 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        font-weight: 700;
+      }
+
+      .welcome-section p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+      }
+
+      .filters {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+      }
+
+      .filter-btn {
+        padding: 0.75rem 1.5rem;
+        border: 2px solid var(--accent);
+        background: white;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        color: var(--text-dark);
+      }
+
+      .filter-btn:hover,
+      .filter-btn.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(11, 154, 122, 0.3);
+      }
+
+      .providers-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .provider-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border: 2px solid transparent;
+      }
+
+      .provider-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        border-color: var(--primary);
+      }
+
+      .provider-header {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .provider-image {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: 600;
+      }
+
+      .provider-info h3 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--text-dark);
+      }
+
+      .provider-specialty {
+        color: var(--text-light);
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .provider-rating {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .stars {
+        color: #f39c12;
+      }
+
+      .provider-details {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--accent);
+      }
+
+      .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-light);
+        font-size: 0.9rem;
+      }
+
+
+      .logout-btn {
+        background: #e74c3c;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .logout-btn:hover {
+        background: #c0392b;
+        transform: translateY(-2px);
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          flex-direction: column;
+        }
+
+        .sidebar {
+          width: 100%;
+          flex-direction: row;
+          padding: 1rem;
+          order: 2;
+        }
+
+        .nav-menu {
+          display: flex;
+          gap: 1rem;
+          overflow-x: auto;
+        }
+
+        .nav-item {
+          white-space: nowrap;
+          min-width: fit-content;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- ─── Sidebar ─────────────────────────────────────────────────────────── -->
+      <div class="sidebar">
+        <div class="logo">
+          <h1>
+            <div class="icon">
+              <i data-lucide="heart-pulse"></i>
+            </div>
+            MedFinder
+          </h1>
+        </div>
+
+        <nav class="nav-menu">
+          <div class="nav-item active" data-page="home">
+            <i data-lucide="home"></i>
+            <span>Dashboard</span>
+          </div>
+          <div class="nav-item" onclick="location.href='/pacientDashboard/chats'">
+            <i data-lucide="message-circle"></i>
+            <span>Chat</span>
+          </div>
+          <div class="nav-item" data-page="appointments">
+            <i data-lucide="calendar"></i>
+            <span>Agendamentos</span>
+          </div>
+          <div class="nav-item" data-page="profile">
+            <i data-lucide="user"></i>
+            <span>Perfil</span>
+          </div>
+        </nav>
+
+        <div class="logout-section">
+          <div class="nav-item" onclick="logout()">
+            <i data-lucide="log-out"></i>
+            <span>Logout</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="main-content">
+        <header class="header">
+          <div class="search-bar">
+            <i data-lucide="search" class="search-icon"></i>
+            <input
+              type="text"
+              class="search-input"
+              placeholder="Procure Médicos, Clínicas, Especialidades..."
+            />
+          </div>
+
+          <div class="user-profile">
+            <button class="notification-btn">
+              <i data-lucide="bell"></i>
+              <div class="notification-badge"></div>
+            </button>
+            <div class="user-avatar">{userProfile.initials}</div>
+          </div>
+        </header>
+
+        <div class="content-area">
+          <div class="page active" id="home">
+            <div class="welcome-section">
+              <h2>Busque Atendimentos Médicos</h2>
+              <p>Contate clínicas e Médicos profissionas em sua área</p>
+            </div>
+
+            <div class="filters">
+              <button class="filter-btn active" data-filter="all">
+                Todos
+              </button>
+              <button class="filter-btn" data-filter="general">
+                Clínica Geral
+              </button>
+              <button class="filter-btn" data-filter="ofta">
+                Oftamologista
+              </button>
+              <button class="filter-btn" data-filter="denti">
+                Dentista
+              </button>
+              <button class="filter-btn" data-filter="psiqui">
+                Psiquiatra
+              </button>
+              <!-- Mais filtros de especialidades... -->
+            </div>
+
+            <div class="providers-grid">
+              {providers.map((provider) => (
+                <div
+                  class="provider-card"
+                  data-type={provider.type}
+                  key={provider.id}
+                >
+                  <div class="provider-header">
+                    <div class="provider-image">
+                      {provider.initials}
+                    </div>
+                    <div class="provider-info">
+                      <h3>{provider.name}</h3>
+                      <div class="provider-specialty">
+                        {provider.specialty}
+                      </div>
+                      <div class="provider-rating">
+                        <div class="stars">★★★★★</div>
+                        <span>
+                          {provider.rating} ({provider.reviews} reviews)
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="provider-details">
+                    <div class="detail-item">
+                      <i data-lucide="map-pin"></i>
+                      <span>{provider.location}</span>
+                    </div>
+                    <div class="detail-item">
+                      <i data-lucide="clock"></i>
+                      <span>{provider.availability}</span>
+                    </div>
+                    <div class="detail-item">
+                      <i data-lucide="dollar-sign"></i>
+                      <span>{provider.price}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+
+    <!-- ─── Serialized Data & Client‐Side JS ───────────────────────────────── -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // Render all Lucide icons
+        lucide.replace();
+
+        // ─── Sidebar Navigation Logic ───────────────────────────────────────
+        const navItems = document.querySelectorAll(".nav-item[data-page]");
+        const pages = document.querySelectorAll(".page");
+
+        navItems.forEach((item) => {
+          item.addEventListener("click", () => {
+            navItems.forEach((i) => i.classList.remove("active"));
+            item.classList.add("active");
+
+            const target = item.getAttribute("data-page");
+            pages.forEach((p) => {
+              if (p.id === target) p.classList.add("active");
+              else p.classList.remove("active");
+            });
+          });
+        });
+
+        // ─── Filter Buttons Logic ─────────────────────────────────────────
+        const filterBtns = document.querySelectorAll(".filter-btn");
+        const providerCards = document.querySelectorAll(".provider-card");
+
+        filterBtns.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            filterBtns.forEach((b) => b.classList.remove("active"));
+            btn.classList.add("active");
+            const filter = btn.getAttribute("data-filter");
+
+            providerCards.forEach((card) => {
+              const type = card.getAttribute("data-type");
+              if (
+                filter === "all" ||
+                type === filter ||
+                (filter === "specialists" && type === "doctor")
+              ) {
+                card.style.display = "block";
+              } else {
+                card.style.display = "none";
+              }
+            });
+          });
+        });
+
+
+        // ─── Logout (simulated) ───────────────────────────────────────────
+        window.logout = () => {
+          // If your auth requires a call, do it here.
+          // For now, we’ll simply redirect:
+          window.location.href = "/logout";
+        };
+
+        // ─── Save Profile (simulated) ─────────────────────────────────────
+        window.saveProfile = () => {
+          const data = {
+            firstName: document.getElementById("firstName").value,
+            lastName: document.getElementById("lastName").value,
+            email: document.getElementById("email").value,
+            phone: document.getElementById("phone").value,
+            birthDate: document.getElementById("birthDate").value,
+            address: document.getElementById("address").value,
+            insurance: document.getElementById("insurance").value,
+            bloodType: document.getElementById("bloodType").value,
+            allergies: document.getElementById("allergies").value,
+            medications: document.getElementById("medications").value,
+          };
+          console.log("Profile data to save:", data);
+          alert("Profile saved (simulated).");
+
+          // TODO: Replace with an actual PUT/POST to your backend endpoint:
+          // fetch('/api/userProfile', {
+          //   method: 'PUT',
+          //   headers: { 'Content-Type': 'application/json' },
+          //   body: JSON.stringify(data)
+          // })
+        };
+      });
+    </script>
+  </body>
+</html>

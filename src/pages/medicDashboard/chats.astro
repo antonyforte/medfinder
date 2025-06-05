@@ -1,0 +1,139 @@
+---
+// src/pages/dashboard/conversas.astro
+import DashboardLayout from '../../layouts/MedicDashboardLayout.astro';
+
+// Simulação de conversas
+const conversations = [
+  { id: 1, patient: "Maria Silva", lastMessage: "Bom dia doutor, como está?", timestamp: "09:30" },
+  { id: 2, patient: "João Santos", lastMessage: "Preciso remarcar minha consulta", timestamp: "Ontem" },
+  { id: 3, patient: "Ana Oliveira", lastMessage: "Obrigada pelo atendimento", timestamp: "Ontem" },
+];
+---
+
+<DashboardLayout>
+  <div class="page-header">
+    <h2>Conversas</h2>
+    <button class="new-conversation">Nova Conversa</button>
+  </div>
+
+  <div class="search-bar">
+    <input type="text" placeholder="Buscar conversas..." />
+  </div>
+
+  <div class="conversations-list">
+    {conversations.map((conv) => (
+      <div class="conversation-item">
+        <div class="conversation-avatar">
+          {conv.patient.charAt(0)}
+        </div>
+        <div class="conversation-content">
+          <div class="conversation-header">
+            <h4>{conv.patient}</h4>
+            <span class="timestamp">{conv.timestamp}</span>
+          </div>
+          <p class="last-message">{conv.lastMessage}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <style>
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      font-weight: 500;
+      color: #333;
+      margin: 0;
+    }
+
+    .new-conversation {
+      background-color: #6750a4;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 15px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .search-bar {
+      margin-bottom: 20px;
+    }
+
+    .search-bar input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+
+    .conversations-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .conversation-item {
+      display: flex;
+      padding: 15px;
+      background-color: #f9f9f9;
+      border-radius: 4px;
+      align-items: center;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .conversation-item:hover {
+      background-color: #f0f0f0;
+    }
+
+    .conversation-avatar {
+      width: 40px;
+      height: 40px;
+      background-color: #6750a4;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      margin-right: 15px;
+    }
+
+    .conversation-content {
+      flex: 1;
+    }
+
+    .conversation-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+
+    .conversation-header h4 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .timestamp {
+      color: #777;
+      font-size: 0.8rem;
+    }
+
+    .last-message {
+      margin: 0;
+      color: #555;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  </style>
+</DashboardLayout>

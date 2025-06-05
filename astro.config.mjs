@@ -1,5 +1,10 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import deno from '@astrojs/deno';
 
 // https://astro.build/config
-export default defineConfig({});
+export default defineConfig({
+  integrations: [],
+  output: "server",
+  adapter: deno(),
+});

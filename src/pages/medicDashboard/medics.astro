@@ -1,0 +1,264 @@
+---
+// src/pages/dashboard/medicos.astro
+import DashboardLayout from '../../layouts/MedicDashboardLayout.astro';
+
+// Simulação de dados de médicos
+const doctors = [
+  {
+    id: 1,
+    name: "Dra. Mariana Costa",
+    specialty: "Cardiologia",
+    crm: "12345-SP",
+    phone: "(11) 98765-4321",
+    email: "mariana.costa@exemplo.com",
+    status: "active"
+  },
+  {
+    id: 2,
+    name: "Dr. Ricardo Soares",
+    specialty: "Ortopedia",
+    crm: "54321-SP",
+    phone: "(11) 91234-5678",
+    email: "ricardo.soares@exemplo.com",
+    status: "active"
+  },
+  {
+    id: 3,
+    name: "Dra. Camila Mendes",
+    specialty: "Dermatologia",
+    crm: "67890-SP",
+    phone: "(11) 95555-1234",
+    email: "camila.mendes@exemplo.com",
+    status: "inactive"
+  }
+];
+---
+
+<DashboardLayout>
+  <div class="page-header">
+    <h2>Médicos</h2>
+    <button class="add-doctor">Adicionar Médico</button>
+  </div>
+
+  <div class="filter-bar">
+    <div class="search-input">
+      <input type="text" placeholder="Buscar médicos..." />
+    </div>
+    <div class="filter-options">
+      <select name="specialty">
+        <option value="">Todas as especialidades</option>
+        <option value="cardio">Cardiologia</option>
+        <option value="ortho">Ortopedia</option>
+        <option value="derma">Dermatologia</option>
+      </select>
+      <select name="status">
+        <option value="">Todos os status</option>
+        <option value="active">Ativo</option>
+        <option value="inactive">Inativo</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="doctors-table-container">
+    <table class="doctors-table">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Especialidade</th>
+          <th>CRM</th>
+          <th>Contato</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {doctors.map((doctor) => (
+          <tr>
+            <td class="doctor-name">{doctor.name}</td>
+            <td>{doctor.specialty}</td>
+            <td>{doctor.crm}</td>
+            <td>
+              <div class="contact-info">
+                <div>{doctor.phone}</div>
+                <div>{doctor.email}</div>
+              </div>
+            </td>
+            <td>
+              <span class={`status-badge ${doctor.status}`}>
+                {doctor.status === 'active' ? 'Ativo' : 'Inativo'}
+              </span>
+            </td>
+            <td class="actions">
+              <button class="action-btn edit">Editar</button>
+              <button class="action-btn delete">Excluir</button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination">
+    <button class="pagination-btn" disabled>&lt;</button>
+    <span class="pagination-current">1</span>
+    <button class="pagination-btn">&gt;</button>
+  </div>
+
+  <style>
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      font-weight: 500;
+      color: #333;
+      margin: 0;
+    }
+
+    .add-doctor {
+      background-color: #0B9A7A;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 15px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .search-input {
+      flex: 1;
+    }
+
+    .search-input input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .filter-options {
+      display: flex;
+      gap: 10px;
+    }
+
+    .filter-options select {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: white;
+    }
+
+    .doctors-table-container {
+      overflow-x: auto;
+      margin-bottom: 20px;
+    }
+
+    .doctors-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .doctors-table th,
+    .doctors-table td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    .doctors-table th {
+      background-color: #f5f5f5;
+      font-weight: 500;
+    }
+
+    .doctor-name {
+      font-weight: 500;
+    }
+
+    .contact-info {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      font-size: 0.9rem;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .status-badge.active {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .status-badge.inactive {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+
+    .actions {
+      display: flex;
+      gap: 5px;
+    }
+
+    .action-btn {
+      padding: 5px 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+
+    .action-btn.edit {
+      background-color: #f5f5f5;
+      color: #555;
+    }
+
+    .action-btn.delete {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .pagination-btn {
+      width: 32px;
+      height: 32px;
+      border: 1px solid #ddd;
+      background-color: white;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pagination-btn:disabled {
+      background-color: #f5f5f5;
+      cursor: not-allowed;
+      color: #aaa;
+    }
+
+    .pagination-current {
+      font-weight: 500;
+    }
+  </style>
+</DashboardLayout>

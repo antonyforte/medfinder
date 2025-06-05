@@ -1,0 +1,594 @@
+---
+/* Simulated user data – troque por fetch('/api/me') no frontmatter */
+const userProfile = {
+  firstName: "John",
+  lastName: "Doe",
+  email: "john.doe@example.com",
+  phone: "+1 (555) 123-4567",
+  birthDate: "1990-01-15",
+  address: "123 Main Street, City, State 12345",
+  insurance: "Blue Cross Blue Shield",
+  bloodType: "A+",
+  allergies: "Penicillin, Shellfish",
+  medications: "Lisinopril 10mg daily",
+  initials: "JD",
+};
+---
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MedFind – Edit Profile</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/umd/lucide.js"></script>
+
+    <style>
+      :root {
+        --primary: #0B9A7A;
+        --primary-dark: #097F66;
+        --secondary: #F5F9F8;
+        --text-dark: #16403C;
+        --text-light: #6A8784;
+        --accent: #E6F5F2;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        min-height: 100vh;
+        color: var(--text-dark);
+      }
+
+      .container {
+        display: flex;
+        min-height: 100vh;
+        max-width: 1400px;
+        margin: 0 auto;
+        background: white;
+        box-shadow: 0 0 50px rgba(0, 0, 0, 0.1);
+      }
+
+      /* ─── Sidebar (mesmo estilo) ─────────────────────────────────────── */
+      .sidebar {
+        width: 280px;
+        background: linear-gradient(180deg, var(--text-dark) 0%, var(--primary-dark) 100%);
+        padding: 2rem 0;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .logo {
+        padding: 0 2rem;
+        margin-bottom: 3rem;
+      }
+
+      .logo h1 {
+        color: white;
+        font-size: 1.8rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .logo .icon {
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(45deg, var(--primary), var(--accent));
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .nav-menu {
+        flex: 1;
+        padding: 0 1rem;
+      }
+
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        margin: 0.5rem 0;
+        color: var(--text-light);
+        cursor: pointer;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+      }
+
+      .nav-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        transform: translateX(5px);
+      }
+
+      .nav-item.active {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        box-shadow: 0 4px 15px rgba(11, 154, 122, 0.3);
+      }
+
+      .nav-item i {
+        width: 20px;
+        height: 20px;
+      }
+
+      .logout-section {
+        padding: 0 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding-top: 1rem;
+      }
+
+      /* ─── Main Content ─────────────────────────────────────────────────── */
+      .main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: var(--secondary);
+      }
+
+      .header {
+        background: white;
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid var(--accent);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .search-bar {
+        flex: 1;
+        max-width: 500px;
+        position: relative;
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 0.75rem 1rem 0.75rem 3rem;
+        border: 2px solid var(--accent);
+        border-radius: 25px;
+        font-size: 1rem;
+        outline: none;
+        transition: all 0.3s ease;
+      }
+
+      .search-input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(11, 154, 122, 0.1);
+      }
+
+      .search-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-light);
+      }
+
+      .user-profile {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .notification-btn {
+        position: relative;
+        padding: 0.5rem;
+        border: none;
+        background: none;
+        cursor: pointer;
+        border-radius: 50%;
+        transition: background 0.3s ease;
+      }
+
+      .notification-btn:hover {
+        background: var(--secondary);
+      }
+
+      .notification-badge {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 8px;
+        height: 8px;
+        background: #e74c3c;
+        border-radius: 50%;
+      }
+
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+      }
+
+      /* ─── Profile (Edit) Form ───────────────────────────────────────────── */
+      .profile-container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .profile-header {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .profile-avatar {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2rem;
+        font-weight: 600;
+        margin: 0 auto 1rem;
+      }
+
+      .profile-form {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--text-dark);
+      }
+
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid var(--accent);
+        border-radius: 8px;
+        font-size: 1rem;
+        outline: none;
+        transition: border-color 0.3s ease;
+      }
+
+      .form-group input:focus,
+      .form-group select:focus,
+      .form-group textarea:focus {
+        border-color: var(--primary);
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+
+      .save-btn {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+      }
+
+      .save-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(11, 154, 122, 0.3);
+      }
+
+      .logout-btn {
+        background: #e74c3c;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .logout-btn:hover {
+        background: #c0392b;
+        transform: translateY(-2px);
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          flex-direction: column;
+        }
+
+        .sidebar {
+          width: 100%;
+          flex-direction: row;
+          padding: 1rem;
+          order: 2;
+        }
+
+        .nav-menu {
+          display: flex;
+          gap: 1rem;
+          overflow-x: auto;
+        }
+
+        .nav-item {
+          white-space: nowrap;
+          min-width: fit-content;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- ─── Sidebar ─────────────────────────────────────────────────────────── -->
+      <div class="sidebar">
+        <div class="logo">
+          <h1>
+            <div class="icon">
+              <i data-lucide="heart-pulse"></i>
+            </div>
+            MedFind
+          </h1>
+        </div>
+
+        <nav class="nav-menu">
+          <div class="nav-item" onclick="location.href='/pacientDashboard'">
+            <i data-lucide="home"></i>
+            <span>Home</span>
+          </div>
+          <div class="nav-item" onclick="location.href='/pacientDashboard/chat'">
+            <i data-lucide="message-circle"></i>
+            <span>Messages</span>
+          </div>
+          <div class="nav-item" onclick="location.href='/pacientDashboard/appointments'">
+            <i data-lucide="calendar"></i>
+            <span>Appointments</span>
+          </div>
+          <div class="nav-item active" data-page="profile">
+            <i data-lucide="user"></i>
+            <span>Profile</span>
+          </div>
+        </nav>
+
+        <div class="logout-section">
+          <div class="nav-item" onclick="logout()">
+            <i data-lucide="log-out"></i>
+            <span>Logout</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── Profile (Edit) Content ─────────────────────────────────────────── -->
+      <div class="main-content">
+        <header class="header">
+          <div class="search-bar">
+            <i data-lucide="search" class="search-icon"></i>
+            <input
+              type="text"
+              class="search-input"
+              placeholder="Search..."
+            />
+          </div>
+
+          <div class="user-profile">
+            <button class="notification-btn">
+              <i data-lucide="bell"></i>
+              <div class="notification-badge"></div>
+            </button>
+            <div class="user-avatar">{userProfile.initials}</div>
+          </div>
+        </header>
+
+        <div class="profile-container">
+          <div class="profile-header">
+            <div class="profile-avatar">
+              {userProfile.initials}
+            </div>
+            <h2>
+              {userProfile.firstName} {userProfile.lastName}
+            </h2>
+            <p>Patient Profile</p>
+          </div>
+
+          <div class="profile-form">
+            <h3>Edit Profile Information</h3>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="firstName">First Name</label>
+                <input
+                  type="text"
+                  id="firstName"
+                  value={userProfile.firstName}
+                />
+              </div>
+              <div class="form-group">
+                <label for="lastName">Last Name</label>
+                <input
+                  type="text"
+                  id="lastName"
+                  value={userProfile.lastName}
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <input type="email" id="email" value={userProfile.email} />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" value={userProfile.phone} />
+              </div>
+              <div class="form-group">
+                <label for="birthDate">Date of Birth</label>
+                <input
+                  type="date"
+                  id="birthDate"
+                  value={userProfile.birthDate}
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="address">Address</label>
+              <input type="text" id="address" value={userProfile.address} />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="insurance">Insurance Provider</label>
+                <select id="insurance">
+                  <option
+                    selected={
+                      userProfile.insurance ===
+                      "Blue Cross Blue Shield"
+                    }
+                  >
+                    Blue Cross Blue Shield
+                  </option>
+                  <option selected={userProfile.insurance === "Aetna"}>
+                    Aetna
+                  </option>
+                  <option selected={userProfile.insurance === "Cigna"}>
+                    Cigna
+                  </option>
+                  <option
+                    selected={
+                      userProfile.insurance === "UnitedHealthcare"
+                    }
+                  >
+                    UnitedHealthcare
+                  </option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="bloodType">Blood Type</label>
+                <select id="bloodType">
+                  <option selected={userProfile.bloodType === "A+"}>
+                    A+
+                  </option>
+                  <option selected={userProfile.bloodType === "A-"}>
+                    A-
+                  </option>
+                  <option selected={userProfile.bloodType === "B+"}>
+                    B+
+                  </option>
+                  <option selected={userProfile.bloodType === "B-"}>
+                    B-
+                  </option>
+                  <option selected={userProfile.bloodType === "AB+"}>
+                    AB+
+                  </option>
+                  <option selected={userProfile.bloodType === "AB-"}>
+                    AB-
+                  </option>
+                  <option selected={userProfile.bloodType === "O+"}>
+                    O+
+                  </option>
+                  <option selected={userProfile.bloodType === "O-"}>
+                    O-
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="allergies">Allergies</label>
+              <textarea
+                id="allergies"
+                rows="3"
+                placeholder="List any known allergies..."
+              >{userProfile.allergies}</textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="medications">Current Medications</label>
+              <textarea
+                id="medications"
+                rows="3"
+                placeholder="List current medications..."
+              >{userProfile.medications}</textarea>
+            </div>
+
+            <button class="save-btn" onclick="saveProfile()">
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Serializa + JS ─────────────────────────────────────────────────── -->
+    <script>
+      const userProfile = ${JSON.stringify(userProfile)};
+
+      document.addEventListener("DOMContentLoaded", () => {
+        lucide.replace();
+
+        // Salvar perfil (simulado)
+        window.saveProfile = () => {
+          const data = {
+            firstName: document.getElementById("firstName").value,
+            lastName: document.getElementById("lastName").value,
+            email: document.getElementById("email").value,
+            phone: document.getElementById("phone").value,
+            birthDate: document.getElementById("birthDate").value,
+            address: document.getElementById("address").value,
+            insurance: document.getElementById("insurance").value,
+            bloodType: document.getElementById("bloodType").value,
+            allergies: document.getElementById("allergies").value,
+            medications: document.getElementById("medications").value,
+          };
+          console.log("Profile data to save:", data);
+          alert("Profile salvo (simulado).");
+
+          // TODO: PUT real para /api/userProfile:
+          // fetch('/api/userProfile', {
+          //   method: 'PUT',
+          //   headers: { 'Content-Type': 'application/json' },
+          //   body: JSON.stringify(data)
+          // });
+        };
+
+        // Logout (simulado)
+        window.logout = () => {
+          window.location.href = "/logout";
+        };
+      });
+    </script>
+  </body>
+</html>

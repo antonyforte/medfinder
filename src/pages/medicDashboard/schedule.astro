@@ -1,0 +1,459 @@
+---
+// src/pages/dashboard/agenda.astro
+import DashboardLayout from '../../layouts/MedicDashboardLayout.astro';
+
+// Data simulation helper function
+const generateAppointments = (baseDate) => {
+  const date = new Date(baseDate);
+  const dateString = date.toISOString().split('T')[0]; // YYYY-MM-DD format
+  
+  // Different appointments based on the date
+  const appointmentsData = {
+    // Today's appointments
+    [new Date().toISOString().split('T')[0]]: [
+      { id: 1, patient: "Carlos Mendes", time: "09:00", type: "Consulta", status: "confirmado" },
+      {id: 4, patient: "Júlia Campos", time: "09:45", type: "Consulta", status: "confirmado"},
+      { id: 2, patient: "Fernanda Lima", time: "10:30", type: "Retorno", status: "pendente" },
+      { id: 3, patient: "Roberto Santos", time: "14:00", type: "Exame", status: "cancelado" }
+    ],
+    // Tomorrow's appointments
+    [new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0]]: [
+      { id: 4, patient: "Ana Maria Silva", time: "08:30", type: "Consulta", status: "confirmado" },
+      { id: 5, patient: "Paulo Oliveira", time: "11:00", type: "Exame", status: "confirmado" },
+      { id: 6, patient: "Lúcia Ferreira", time: "15:30", type: "Retorno", status: "pendente" }
+    ],
+    // Day after tomorrow
+    [new Date(new Date().setDate(new Date().getDate() + 2)).toISOString().split('T')[0]]: [
+      { id: 7, patient: "Ricardo Almeida", time: "09:45", type: "Consulta", status: "confirmado" },
+      { id: 8, patient: "Mariana Costa", time: "13:15", type: "Retorno", status: "cancelado" }
+    ],
+    // Yesterday's appointments
+    [new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().split('T')[0]]: [
+      { id: 9, patient: "Juliana Pereira", time: "10:00", type: "Consulta", status: "confirmado" },
+      { id: 10, patient: "Eduardo Santos", time: "16:00", type: "Exame", status: "confirmado" }
+    ],
+    // Next week
+    [new Date(new Date().setDate(new Date().getDate() + 7)).toISOString().split('T')[0]]: [
+      { id: 11, patient: "Beatriz Souza", time: "11:30", type: "Consulta", status: "pendente" },
+      { id: 12, patient: "Rafael Moreira", time: "14:45", type: "Retorno", status: "confirmado" }
+    ]
+  };
+
+  return appointmentsData[dateString] || [];
+};
+
+// Get URL parameters
+const dateParam = Astro.url.searchParams.get('date');
+
+// Parse date parameter or use today's date (avoid timezone shift)
+let currentDate;
+if (dateParam) {
+  const [year, month, day] = dateParam.split('-').map(Number);
+  currentDate = new Date(year, month - 1, day);
+  if (isNaN(currentDate.getTime())) {
+    currentDate = new Date();
+  }
+} else {
+  currentDate = new Date();
+}
+
+// Get appointments for the current date
+const appointments = generateAppointments(currentDate);
+
+// Format date for display
+const formatDate = (date) => {
+  return new Intl.DateTimeFormat('pt-BR', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  }).format(date);
+};
+
+const formattedDate = formatDate(currentDate);
+
+// Generate previous and next day dates
+const previousDay = new Date(currentDate);
+previousDay.setDate(previousDay.getDate() - 1);
+const previousDayString = previousDay.toISOString().split('T')[0];
+
+const nextDay = new Date(currentDate);
+nextDay.setDate(nextDay.getDate() + 1);
+const nextDayString = nextDay.toISOString().split('T')[0];
+
+// Função para calcular posição vertical com base no horário
+const getMarginTopForTime = (timeString) => {
+  const [hours, minutes] = timeString.split(':').map(Number);
+  return ((hours - 8) * 60 + minutes) + 'px';
+};
+
+// Função para exibir ícone de status
+const getStatusIcon = (status) => {
+  if (status === "confirmado") {
+    return "✓";
+  } else if (status === "pendente") {
+    return "?";
+  } else if (status === "cancelado") {
+    return "✕";
+  } else {
+    return "";
+  }
+};
+
+// Check if the current date is today
+const isToday = (date) => {
+  const today = new Date();
+  return date.getDate() === today.getDate() &&
+    date.getMonth() === today.getMonth() &&
+    date.getFullYear() === today.getFullYear();
+};
+
+const today = isToday(currentDate) ? "hoje" : "";
+---
+
+<DashboardLayout>
+  <div class="page-header">
+    <h2>Agenda</h2>
+    <div class="header-actions">
+      <button id="view-month" class="btn-outline">Ver Mês</button>
+      <button id="new-appointment" class="btn-primary">Novo Agendamento</button>
+    </div>
+  </div>
+
+  <div class="calendar-nav">
+    <a href={`/medicDashboard/schedule?date=${previousDayString}`} class="nav-btn">&lt;</a>
+    <h3>{formattedDate} {today && <span class="today-badge">(Hoje)</span>}</h3>
+    <a href={`/medicDashboard/schedule?date=${nextDayString}`} class="nav-btn">&gt;</a>
+  </div>
+
+  <div class="date-quick-nav">
+    <a href="/medicDashboard/schedule?date={new Date().toISOString().split('T')[0]}" class="date-link {isToday(currentDate) ? 'active' : ''}">Hoje</a>
+    <a href={`/medicDashboard/schedule?date=${new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0]}`} class="date-link">Amanhã</a>
+    <a href={`/medicDashboard/schedule?date=${new Date(new Date().setDate(new Date().getDate() + 7)).toISOString().split('T')[0]}`} class="date-link">Próxima Semana</a>
+  </div>
+
+  <div class="schedule-container">
+    <div class="time-column">
+      <div class="time-slot">08:00</div>
+      <div class="time-slot">09:00</div>
+      <div class="time-slot">10:00</div>
+      <div class="time-slot">11:00</div>
+      <div class="time-slot">12:00</div>
+      <div class="time-slot">13:00</div>
+      <div class="time-slot">14:00</div>
+      <div class="time-slot">15:00</div>
+      <div class="time-slot">16:00</div>
+      <div class="time-slot">17:00</div>
+    </div>
+    
+    <div class="appointments-column">
+      {appointments.length > 0 ? (
+        appointments.map((appointment) => (
+          <div class={`appointment ${appointment.status}`} style={`top: ${getMarginTopForTime(appointment.time)}`}>
+            <div class="appointment-time">{appointment.time}</div>
+            <div class="appointment-details">
+              <h4>{appointment.patient}</h4>
+              <p>{appointment.type}</p>
+            </div>
+            <div class="appointment-status">{getStatusIcon(appointment.status)}</div>
+          </div>
+        ))
+      ) : (
+        <div class="no-appointments">
+          <p>Não há agendamentos para esta data.</p>
+        </div>
+      )}
+
+    </div>
+  </div>
+
+  <style>
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      font-weight: 500;
+      color: #333;
+      margin: 0;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      border: 1px solid #0B9A7A;
+      color: #0B9A7A;
+      border-radius: 4px;
+      padding: 8px 15px;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background-color: #0B9A7A;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 15px;
+      cursor: pointer;
+    }
+
+    .calendar-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    .calendar-nav h3 {
+      margin: 0;
+      font-size: 1.2rem;
+      text-transform: capitalize;
+    }
+
+    .date-quick-nav {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .date-link {
+      padding: 6px 12px;
+      background-color: #f5f5f5;
+      border-radius: 16px;
+      text-decoration: none;
+      color: #555;
+      font-size: 0.9rem;
+    }
+
+    .date-link.active {
+      background-color: #0B9A7A;
+      color: white;
+    }
+
+    .today-badge {
+      font-size: 0.8rem;
+      background-color: #0B9A7A;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-left: 8px;
+    }
+
+    .nav-btn {
+      background: none;
+      border: 1px solid #ddd;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      text-decoration: none;
+      color: #555;
+    }
+
+    .schedule-container {
+      display: flex;
+      min-height: 600px;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      position: relative;
+    }
+
+    .time-column {
+      width: 80px;
+      border-right: 1px solid #eee;
+      padding-top: 0;
+    }
+
+    .time-slot {
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #777;
+      font-size: 0.9rem;
+      border-bottom: 1px solid #eee;
+    }
+
+    .appointments-column {
+      flex: 1;
+      position: relative;
+      padding: 10px;
+    }
+
+    .appointment {
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      background-color: #e8f5ff;
+      border-left: 4px solid #4a90e2;
+      border-radius: 4px;
+      padding: 10px;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+      z-index: 2;
+    }
+
+    .appointment:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      z-index: 3;
+      padding: 10px;  
+      border: 1px solid #6b0101;
+      color: #6b0101;
+    }
+
+    .appointment.confirmado {
+      background-color: #e8f5ff;
+      border-left-color: #4a90e2;
+    }
+    
+
+    .appointment.pendente {
+      background-color: #fff8e8;
+      border-left-color: #f9a825;
+    }
+
+    .appointment.cancelado {
+      background-color: #ffe7e7;
+      border-left-color: #cc1717;
+      opacity: 0.8;
+    }
+
+    .appointment-time {
+      font-weight: bold;
+      margin-right: 15px;
+      min-width: 50px;
+    }
+
+    .appointment-details {
+      flex: 1;
+    }
+
+    .appointment-details h4 {
+      margin: 0 0 5px 0;
+      font-size: 1rem;
+    }
+
+    .appointment-details p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    .appointment-status {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 10px;
+      font-weight: bold;
+    }
+
+    .confirmado .appointment-status {
+      background-color: #e3f3ff;
+      color: #4a90e2;
+    }
+
+    .pendente .appointment-status {
+      background-color: #fff8e8;
+      color: #f9a825;
+    }
+
+    .cancelado .appointment-status {
+      background-color: #fcefef;
+      color: #cc1717;
+    }
+
+    .current-time-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      z-index: 1;
+    }
+
+
+    .time-line {
+      flex: 1;
+      height: 2px;
+      background-color: #e74c3c;
+    }
+
+    .no-appointments {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 300px;
+      color: #888;
+      font-style: italic;
+    }
+  </style>
+
+  <script>
+    // Update current time indicator position
+    function updateCurrentTimeIndicator() {
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      
+      // Only show if within business hours (8am-6pm)
+      if (hours >= 8 && hours < 18) {
+        const indicator = document.getElementById('current-time-indicator');
+        if (indicator) {
+          const marginTop = ((hours - 8) * 60 + minutes) + 'px';
+          indicator.style.top = marginTop;
+          indicator.style.display = 'flex';
+        }
+      } else {
+        const indicator = document.getElementById('current-time-indicator');
+        if (indicator) {
+          indicator.style.display = 'none';
+        }
+      }
+    }
+
+    // Run on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize current time indicator
+      updateCurrentTimeIndicator();
+      
+      // Update the indicator every minute
+      setInterval(updateCurrentTimeIndicator, 60000);
+
+      // Modal for new appointment (simulated)
+      const newAppointmentBtn = document.getElementById('new-appointment');
+      if (newAppointmentBtn) {
+        newAppointmentBtn.addEventListener('click', function() {
+          alert('Formulário de novo agendamento seria aberto aqui.');
+        });
+      }
+
+      // Month view button (simulated)
+      const viewMonthBtn = document.getElementById('view-month');
+      if (viewMonthBtn) {
+        viewMonthBtn.addEventListener('click', function() {
+          alert('Vista mensal seria mostrada aqui.');
+        });
+      }
+    });
+  </script>
+</DashboardLayout>

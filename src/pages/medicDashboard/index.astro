@@ -1,0 +1,77 @@
+---
+// src/pages/dashboard/index.astro
+import DashboardLayout from '../../layouts/MedicDashboardLayout.astro';
+
+// Simulação de nome para a clínica/médico
+const clinicName = "Nome_Médico/Clínica";
+
+// Obter data atual formatada para português
+const today = new Date();
+const tomorrow = new Date(today);
+tomorrow.setDate(tomorrow.getDate() + 1);
+
+const formatDate = (date) => {
+  return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+};
+
+const todayFormatted = formatDate(today);
+const tomorrowFormatted = formatDate(tomorrow);
+---
+
+<DashboardLayout>
+  <h2>Olá {clinicName}</h2>
+
+  <div class="dashboard-card">
+    <h3>Horário de Funcionamento</h3>
+    
+    <div class="schedule-container">
+      <div class="schedule-day">
+        <p>Hoje, {todayFormatted}</p>
+        <!-- Aqui você pode adicionar os horários específicos -->
+      </div>
+      
+      <div class="schedule-day">
+        <p>Amanhã, {tomorrowFormatted}</p>
+        <!-- Aqui você pode adicionar os horários específicos -->
+      </div>
+    </div>
+  </div>
+
+  <style>
+    h2 {
+      font-size: 1.8rem;
+      font-weight: 500;
+      margin-bottom: 30px;
+      color: #333;
+    }
+    
+    .dashboard-card {
+      background-color: #f2f2f2;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    
+    h3 {
+      font-size: 1.2rem;
+      font-weight: 500;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    
+    .schedule-container {
+      display: flex;
+      gap: 30px;
+    }
+    
+    .schedule-day {
+      flex: 1;
+    }
+    
+    p {
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+  </style>
+</DashboardLayout>

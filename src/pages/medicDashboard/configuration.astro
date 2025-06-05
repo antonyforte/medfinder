@@ -1,0 +1,70 @@
+---
+// src/pages/dashboard/configuracao.astro
+import DashboardLayout from '../../layouts/MedicDashboardLayout.astro';
+---
+
+<DashboardLayout>
+  <h2>Configuração</h2>
+
+  <div class="settings-container">
+    <div class="settings-sidebar">
+      <ul class="settings-menu">
+        <li class="active">Perfil da Clínica</li>
+        <li>Horários de Funcionamento</li>
+        <li>Usuários e Permissões</li>
+        <li>Notificações</li>
+        <li>Integrações</li>
+        <li>Customização</li>
+      </ul>
+    </div>
+
+    <div class="settings-content">
+      <div class="settings-section">
+        <h3>Perfil da Clínica</h3>
+        
+        <form class="settings-form">
+          <div class="form-group">
+            <label for="clinicName">Nome da Clínica</label>
+            <input type="text" id="clinicName" value="Clínica Exemplo" />
+          </div>
+          
+          <div class="form-group">
+            <label for="cnpj">CNPJ</label>
+            <input type="text" id="cnpj" value="12.345.678/0001-90" />
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="phone">Telefone</label>
+              <input type="text" id="phone" value="(11) 3456-7890" />
+            </div>
+            
+            <div class="form-group">
+              <label for="email">E-mail</label>
+              <input type="email" id="email" value="contato@clinicaexemplo.com.br" />
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="address">Endereço</label>
+            <input type="text" id="address" value="Av. Paulista, 1000 - Bela Vista" />
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="city">Cidade</label>
+              <input type="text" id="city" value="São Paulo" />
+            </div>
+            
+            <div class="form-group">
+              <label for="state">Estado</label>
+              <select id="state">
+                <option value="SP" selected>São Paulo</option>
+                <option value="RJ">Rio de Janeiro</option>
+                <option value="MG">Minas Gerais</option>
+                <!-- Outros estados -->
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="zipcode">CEP</label>
