@@ -1,0 +1,172 @@
+---
+// Sidebar.astro
+export interface Props {
+  currentPage?: string;
+  userInitials?: string;
+}
+
+const { currentPage = 'home', userInitials = 'JD' } = Astro.props;
+---
+
+<div class="sidebar">
+  <div class="logo">
+    <h1>
+      <div class="icon">
+        <i data-lucide="heart-pulse"></i>
+      </div>
+      MedFinder
+    </h1>
+  </div>
+
+  <nav class="nav-menu">
+    <!-- Dashboard -->
+<div 
+class={`nav-item ${currentPage === 'home' ? 'active' : ''}`} 
+{...(currentPage !== 'home' ? { onclick: "location.href='/pacientDashboard/'" } : {})}
+data-page="home"
+>
+<i data-lucide="home"></i>
+    <span>Dashboard</span>
+    </div>
+
+    <!-- Chat -->
+    <div 
+    class={`nav-item ${currentPage === 'chats' ? 'active' : ''}`} 
+    {...(currentPage !== 'chats' ? { onclick: "location.href='/pacientDashboard/chats'" } : {})}
+    >
+    <i data-lucide="message-circle"></i>
+    <span>Chat</span>
+    </div>
+
+    <!-- Agendamentos -->
+    <div 
+    class={`nav-item ${currentPage === 'appointments' ? 'active' : ''}`} 
+    {...(currentPage !== 'appointments' ? { onclick: "location.href='/pacientDashboard/appointments'" } : {})}
+    >
+    <i data-lucide="calendar"></i>
+    <span>Agendamentos</span>
+    </div>
+
+    <!-- Perfil -->
+    <div 
+    class={`nav-item ${currentPage === 'profile' ? 'active' : ''}`} 
+    {...(currentPage !== 'profile' ? { onclick: "location.href='/pacientDashboard/profile'" } : {})}
+    >
+    <i data-lucide="user"></i>
+    <span>Perfil</span>
+    </div>
+
+  </nav>
+
+  <div class="logout-section">
+    <div class="nav-item" onclick="logout()">
+      <i data-lucide="log-out"></i>
+      <span>Logout</span>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* ─── Sidebar Styles ────────────────────────────────────────────────────── */
+  .sidebar {
+  width: 280px;
+  background: linear-gradient(180deg, var(--text-dark) 0%, var(--primary-dark) 100%);
+  padding: 2rem 0;
+  display: flex;
+  flex-direction: column;
+  position: fixed; /* <- aqui */
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto; /* permite rolar o conteúdo da sidebar se necessário */
+  z-index: 1000; /* garante que fique acima de outros elementos */
+}
+
+
+  .logo {
+    padding: 0 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .logo h1 {
+    color: white;
+    font-size: 1.8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .logo .icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(45deg, var(--primary), var(--accent));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav-menu {
+    flex: 1;
+    padding: 0 1rem;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    margin: 0.5rem 0;
+    color: var(--text-light);
+    cursor: pointer;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .nav-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    transform: translateX(5px);
+  }
+
+  .nav-item.active {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    box-shadow: 0 4px 15px rgba(11, 154, 122, 0.3);
+    cursor: default;
+  }
+
+  .nav-item i {
+    width: 20px;
+    height: 20px;
+  }
+
+  .logout-section {
+    padding: 0 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 1rem;
+  }
+
+  /* ─── Responsive Design ─────────────────────────────────────────────────── */
+  @media (max-width: 768px) {
+    .sidebar {
+      width: 100%;
+      flex-direction: row;
+      padding: 1rem;
+      order: 2;
+    }
+
+    .nav-menu {
+      display: flex;
+      gap: 1rem;
+      overflow-x: auto;
+    }
+
+    .nav-item {
+      white-space: nowrap;
+      min-width: fit-content;
+    }
+  }
+</style>

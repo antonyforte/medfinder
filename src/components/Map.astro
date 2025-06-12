@@ -1,0 +1,57 @@
+---
+---
+<!-- Componente Astro para exibir o mapa do Google com dados simulados -->
+<style>
+    #map {
+      height: 500px;
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+  </style>
+  
+  <div id="map"></div>
+  
+  <script client:load>
+    // Define a função global que o callback do Google Maps espera
+    window.initMap = function initMap() {
+      try {
+        // Dados simulados para teste
+        const enderecoDoBanco = "Av. Paulista, 1578 - Bela Vista, São Paulo - SP, 01310-200, Brasil";
+  
+        const geocoder = new google.maps.Geocoder();
+        geocoder.geocode({ address: enderecoDoBanco }, (results, status) => {
+          if (status === 'OK' && results[0]) {
+            const location = results[0].geometry.location;
+            const map = new google.maps.Map(document.getElementById('map'), {
+              center: location,
+              zoom: 16,
+              mapTypeControl: true,
+              zoomControl: true,
+              streetViewControl: false
+            });
+  
+            const marker = new google.maps.Marker({ position: location, map, title: 'Localização simulada' });
+            marker.addListener('click', () => {
+              const enderecoCodificado = encodeURIComponent(enderecoDoBanco);
+              const url = `https://www.google.com/maps/search/?api=1&query=${enderecoCodificado}`;
+              window.open(url, '_blank');
+            });
+          } else {
+            alert('Localização simulada não encontrada: ' + status);
+          }
+        });
+      } catch (error) {
+        console.error(error);
+        alert('Erro ao inicializar o mapa.');
+      }
+    };
+  
+    // Carrega a API do Google Maps dinamicamente
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCd9nSU2DUTudodDYt-MSpjINYV6V9rICs&libraries=places,geometry&callback=initMap`;
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+  </script>
+  

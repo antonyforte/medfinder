@@ -1,0 +1,912 @@
+---
+import Sidebar from "../../components/Sidebar.astro";
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   User profile data (replace with real API calls once your backend is ready)
+───────────────────────────────────────────────────────────────────────────── */
+const userProfile = {
+  firstName: "João",
+  lastName: "Silva",
+  email: "joao.silva@email.com",
+  phone: "+55 (11) 99999-9999",
+  birthDate: "1990-01-15",
+  cpf: "123.456.789-00",
+  address: "Rua das Flores, 123",
+  city: "São Paulo",
+  state: "SP",
+  zipCode: "01234-567",
+  insurance: "Unimed",
+  insuranceNumber: "123456789",
+  bloodType: "A+",
+  allergies: "Penicilina, Frutos do mar",
+  medications: "Losartana 50mg (1x ao dia)",
+  emergencyContact: "Maria Silva",
+  emergencyPhone: "+55 (11) 88888-8888",
+  initials: "JS",
+  memberSince: "2024-01-15"
+};
+---
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MedFinder - Meu Perfil</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/umd/lucide.js"></script>
+    <style>
+      :root {
+        --primary: #0B9A7A;
+        --primary-dark: #097F66;
+        --secondary: #F5F9F8;
+        --text-dark: #16403C;
+        --text-light: #6A8784;
+        --accent: #E6F5F2;
+        --success: #27ae60;
+        --warning: #f39c12;
+        --danger: #e74c3c;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        min-height: 100vh;
+        color: var(--text-dark);
+      }
+
+      .container {
+        display: flex;
+        min-height: 100vh;
+        max-width: 1400px;
+        margin: 0 auto;
+        background: white;
+        box-shadow: 0 0 50px rgba(0,0,0,0.1);
+      }
+
+      /* ─── Sidebar ────────────────────────────────────────────────────────── */
+
+      /* ─── Main Content ───────────────────────────────────────────────────── */
+      .main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: var(--secondary);
+        margin-left: 280px;
+        padding: 2rem;
+      }
+
+      .header {
+        background: white;
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid var(--accent);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-dark);
+      }
+
+      .user-profile-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .notification-btn {
+        position: relative;
+        padding: 0.5rem;
+        border: none;
+        background: none;
+        cursor: pointer;
+        border-radius: 50%;
+        transition: background 0.3s ease;
+      }
+
+      .notification-btn:hover {
+        background: var(--secondary);
+      }
+
+      .notification-badge {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 8px;
+        height: 8px;
+        background: #e74c3c;
+        border-radius: 50%;
+      }
+
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+      }
+
+      .content-area {
+        flex: 1;
+        padding: 2rem;
+        overflow-y: auto;
+      }
+
+      /* ─── Profile Content ──────────────────────────────────────────────── */
+      .profile-container {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      .profile-header {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+      }
+
+      .profile-avatar {
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 3rem;
+        font-weight: 700;
+        flex-shrink: 0;
+        position: relative;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+      }
+
+      .profile-avatar:hover {
+        transform: scale(1.05);
+      }
+
+      .avatar-upload {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 40px;
+        height: 40px;
+        background: var(--primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        border: 3px solid white;
+        cursor: pointer;
+        transition: background 0.3s ease;
+      }
+
+      .avatar-upload:hover {
+        background: var(--primary-dark);
+      }
+
+      .profile-info {
+        flex: 1;
+      }
+
+      .profile-info h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+      }
+
+      .profile-info .email {
+        color: var(--text-light);
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+      }
+
+      .profile-stats {
+        display: flex;
+        gap: 2rem;
+      }
+
+      .stat-item {
+        text-align: center;
+      }
+
+      .stat-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary);
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        color: var(--text-light);
+      }
+
+      .profile-sections {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+      }
+
+      .profile-section {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+      }
+
+      .profile-section:hover {
+        transform: translateY(-2px);
+      }
+
+      .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--accent);
+      }
+
+      .section-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--text-dark);
+      }
+
+      .section-title i {
+        color: var(--primary);
+      }
+
+      .edit-btn {
+        background: var(--accent);
+        color: var(--primary);
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .edit-btn:hover {
+        background: var(--primary);
+        color: white;
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--text-dark);
+      }
+
+      .form-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid var(--accent);
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+        background: white;
+      }
+
+      .form-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(11, 154, 122, 0.1);
+      }
+
+      .form-input:disabled {
+        background: var(--secondary);
+        color: var(--text-light);
+        cursor: not-allowed;
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+
+      .form-textarea {
+        min-height: 100px;
+        resize: vertical;
+      }
+
+      .save-btn {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        width: 100%;
+        justify-content: center;
+        margin-top: 1rem;
+      }
+
+      .save-btn:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(11, 154, 122, 0.3);
+      }
+
+      .save-btn:disabled {
+        background: var(--text-light);
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      .info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--accent);
+      }
+
+      .info-item:last-child {
+        border-bottom: none;
+      }
+
+      .info-label {
+        font-weight: 500;
+        color: var(--text-light);
+      }
+
+      .info-value {
+        color: var(--text-dark);
+        font-weight: 500;
+      }
+
+      .section-full-width {
+        grid-column: 1 / -1;
+      }
+
+      .alert {
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .alert.success {
+        background: rgba(39, 174, 96, 0.1);
+        color: var(--success);
+        border: 1px solid var(--success);
+      }
+
+      .alert.warning {
+        background: rgba(243, 156, 18, 0.1);
+        color: var(--warning);
+        border: 1px solid var(--warning);
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          flex-direction: column;
+        }
+
+        .sidebar {
+          width: 100%;
+          flex-direction: row;
+          padding: 1rem;
+          order: 2;
+        }
+
+        .nav-menu {
+          display: flex;
+          gap: 1rem;
+          overflow-x: auto;
+        }
+
+        .nav-item {
+          white-space: nowrap;
+          min-width: fit-content;
+        }
+
+        .profile-sections {
+          grid-template-columns: 1fr;
+        }
+
+        .profile-header {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .profile-stats {
+          justify-content: center;
+        }
+
+        .form-row {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- ─── Sidebar ─────────────────────────────────────────────────────────── -->
+      <Sidebar currentPage="profile" userInitials="JD" />
+
+      <div class="main-content">
+        <header class="header">
+          <h1 class="page-title">Meu Perfil</h1>
+
+          <div class="user-profile-header">
+            <button class="notification-btn">
+              <i data-lucide="bell"></i>
+              <div class="notification-badge"></div>
+            </button>
+            <div class="user-avatar">{userProfile.initials}</div>
+          </div>
+        </header>
+
+        <div class="content-area">
+          <div class="profile-container">
+            <!-- Profile Header -->
+            <div class="profile-header">
+              <div class="profile-avatar" onclick="changeAvatar()">
+                {userProfile.initials}
+                <div class="avatar-upload">
+                  <i data-lucide="camera"></i>
+                </div>
+              </div>
+              <div class="profile-info">
+                <h2>{userProfile.firstName} {userProfile.lastName}</h2>
+                <div class="email">{userProfile.email}</div>
+                <div class="profile-stats">
+                  <div class="stat-item">
+                    <div class="stat-number">12</div>
+                    <div class="stat-label">Consultas</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Médicos</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-number">2</div>
+                    <div class="stat-label">Pendentes</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Profile Sections -->
+            <div class="profile-sections">
+              <!-- Personal Information -->
+              <div class="profile-section">
+                <div class="section-header">
+                  <div class="section-title">
+                    <i data-lucide="user"></i>
+                    Informações Pessoais
+                  </div>
+                  <button class="edit-btn" onclick="toggleEdit('personal')">
+                    <i data-lucide="edit"></i>
+                    Editar
+                  </button>
+                </div>
+
+                <form id="personal-form">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="firstName">Nome</label>
+                      <input
+                        type="text"
+                        id="firstName"
+                        class="form-input"
+                        value={userProfile.firstName}
+                        disabled
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label for="lastName">Sobrenome</label>
+                      <input
+                        type="text"
+                        id="lastName"
+                        class="form-input"
+                        value={userProfile.lastName}
+                        disabled
+                      />
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="email">Email</label>
+                      <input
+                        type="email"
+                        id="email"
+                        class="form-input"
+                        value={userProfile.email}
+                        disabled
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label for="phone">Telefone</label>
+                      <input
+                        type="tel"
+                        id="phone"
+                        class="form-input"
+                        value={userProfile.phone}
+                        disabled
+                      />
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="birthDate">Data de Nascimento</label>
+                      <input
+                        type="date"
+                        id="birthDate"
+                        class="form-input"
+                        value={userProfile.birthDate}
+                        disabled
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label for="cpf">CPF</label>
+                      <input
+                        type="text"
+                        id="cpf"
+                        class="form-input"
+                        value={userProfile.cpf}
+                        disabled
+                      />
+                    </div>
+                  </div>
+                  <button type="submit" class="save-btn" id="personal-save" style="display: none;">
+                    <i data-lucide="save"></i>
+                    Salvar Alterações
+                  </button>
+                </form>
+              </div>
+
+              <!-- Address Information -->
+              <div class="profile-section">
+                <div class="section-header">
+                  <div class="section-title">
+                    <i data-lucide="map-pin"></i>
+                    Endereço
+                  </div>
+                  <button class="edit-btn" onclick="toggleEdit('address')">
+                    <i data-lucide="edit"></i>
+                    Editar
+                  </button>
+                </div>
+
+                <form id="address-form">
+                  <div class="form-group">
+                    <label for="address">Endereço</label>
+                    <input
+                      type="text"
+                      id="address"
+                      class="form-input"
+                      value={userProfile.address}
+                      disabled
+                    />
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="city">Cidade</label>
+                      <input
+                        type="text"
+                        id="city"
+                        class="form-input"
+                        value={userProfile.city}
+                        disabled
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label for="state">Estado</label>
+                      <input
+                        type="text"
+                        id="state"
+                        class="form-input"
+                        value={userProfile.state}
+                        disabled
+                      />
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="zipCode">CEP</label>
+                    <input
+                      type="text"
+                      id="zipCode"
+                      class="form-input"
+                      value={userProfile.zipCode}
+                      disabled
+                    />
+                  </div>
+                  <button type="submit" class="save-btn" id="address-save" style="display: none;">
+                    <i data-lucide="save"></i>
+                    Salvar Alterações
+                  </button>
+                </form>
+              </div>
+
+              <!-- Insurance Information -->
+              <div class="profile-section">
+                <div class="section-header">
+                  <div class="section-title">
+                    <i data-lucide="shield"></i>
+                    Plano de Saúde
+                  </div>
+                  <button class="edit-btn" onclick="toggleEdit('insurance')">
+                    <i data-lucide="edit"></i>
+                    Editar
+                  </button>
+                </div>
+
+                <form id="insurance-form">
+                  <div class="form-group">
+                    <label for="insurance">Operadora</label>
+                    <input
+                      type="text"
+                      id="insurance"
+                      class="form-input"
+                      value={userProfile.insurance}
+                      disabled
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="insuranceNumber">Número da Carteirinha</label>
+                    <input
+                      type="text"
+                      id="insuranceNumber"
+                      class="form-input"
+                      value={userProfile.insuranceNumber}
+                      disabled
+                    />
+                  </div>
+                  <button type="submit" class="save-btn" id="insurance-save" style="display: none;">
+                    <i data-lucide="save"></i>
+                    Salvar Alterações
+                  </button>
+                </form>
+              </div>
+
+              <!-- Medical Information -->
+              <div class="profile-section">
+                <div class="section-header">
+                  <div class="section-title">
+                    <i data-lucide="heart"></i>
+                    Informações Médicas
+                  </div>
+                  <button class="edit-btn" onclick="toggleEdit('medical')">
+                    <i data-lucide="edit"></i>
+                    Editar
+                  </button>
+                </div>
+
+                <form id="medical-form">
+                  <div class="form-group">
+                    <label for="bloodType">Tipo Sanguíneo</label>
+                    <select id="bloodType" class="form-input" disabled>
+                      <option value="A+" selected={userProfile.bloodType === 'A+'}>A+</option>
+                      <option value="A-" selected={userProfile.bloodType === 'A-'}>A-</option>
+                      <option value="B+" selected={userProfile.bloodType === 'B+'}>B+</option>
+                      <option value="B-" selected={userProfile.bloodType === 'B-'}>B-</option>
+                      <option value="AB+" selected={userProfile.bloodType === 'AB+'}>AB+</option>
+                      <option value="AB-" selected={userProfile.bloodType === 'AB-'}>AB-</option>
+                      <option value="O+" selected={userProfile.bloodType === 'O+'}>O+</option>
+                      <option value="O-" selected={userProfile.bloodType === 'O-'}>O-</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="allergies">Alergias</label>
+                    <textarea
+                      id="allergies"
+                      class="form-input form-textarea"
+                      disabled
+                      placeholder="Liste suas alergias conhecidas..."
+                    >{userProfile.allergies}</textarea>
+                  </div>
+                  <div class="form-group">
+                    <label for="medications">Medicamentos em Uso</label>
+                    <textarea
+                      id="medications"
+                      class="form-input form-textarea"
+                      disabled
+                      placeholder="Liste os medicamentos que você toma regularmente..."
+                    >{userProfile.medications}</textarea>
+                  </div>
+                  <button type="submit" class="save-btn" id="medical-save" style="display: none;">
+                    <i data-lucide="save"></i>
+                    Salvar Alterações
+                  </button>
+                </form>
+              </div>
+
+              <!-- Emergency Contact -->
+              <div class="profile-section section-full-width">
+                <div class="section-header">
+                  <div class="section-title">
+                    <i data-lucide="phone"></i>
+                    Contato de Emergência
+                  </div>
+                  <button class="edit-btn" onclick="toggleEdit('emergency')">
+                    <i data-lucide="edit"></i>
+                    Editar
+                  </button>
+                </div>
+
+                <form id="emergency-form">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="emergencyContact">Nome do Contato</label>
+                      <input
+                        type="text"
+                        id="emergencyContact"
+                        class="form-input"
+                        value={userProfile.emergencyContact}
+                        disabled
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label for="emergencyPhone">Telefone de Emergência</label>
+                      <input
+                        type="tel"
+                        id="emergencyPhone"
+                        class="form-input"
+                        value={userProfile.emergencyPhone}
+                        disabled
+                      />
+                    </div>
+                  </div>
+                  <button type="submit" class="save-btn" id="emergency-save" style="display: none;">
+                    <i data-lucide="save"></i>
+                    Salvar Alterações
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // Render all Lucide icons
+        lucide.replace();
+
+        // ─── Edit Toggle Functions ─────────────────────────────────────────
+        window.toggleEdit = (section) => {
+          const form = document.getElementById(`${section}-form`);
+          const inputs = form.querySelectorAll('.form-input');
+          const saveBtn = document.getElementById(`${section}-save`);
+          const editBtn = form.closest('.profile-section').querySelector('.edit-btn');
+          
+          const isEditing = !inputs[0].disabled;
+          
+          if (isEditing) {
+            // Cancel editing
+            inputs.forEach(input => {
+              input.disabled = true;
+            });
+            saveBtn.style.display = 'none';
+            editBtn.innerHTML = '<i data-lucide="edit"></i>Editar';
+          } else {
+            // Enable editing
+            inputs.forEach(input => {
+              input.disabled = false;
+            });
+            saveBtn.style.display = 'flex';
+            editBtn.innerHTML = '<i data-lucide="x"></i>Cancelar';
+          }
+          
+          // Re-render icons
+          lucide.replace();
+        };
+
+        // ─── Form Submit Handlers ─────────────────────────────────────────
+        const forms = ['personal', 'address', 'insurance', 'medical', 'emergency'];
+        
+        forms.forEach(formName => {
+          const form = document.getElementById(`${formName}-form`);
+          form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Collect form data
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            
+            // Add non-form-data values
+            const inputs = form.querySelectorAll('.form-input');
+            inputs.forEach(input => {
+              data[input.id] = input.value;
+            });
+            
+            console.log(`Saving ${formName} data:`, data);
+            
+            // TODO: Replace with actual API call
+            // fetch(`/api/profile/${formName}`, {
+            //   method: 'PUT',
+            //   headers: { 'Content-Type': 'application/json' },
+            //   body: JSON.stringify(data)
+            // })
+            
+            // Simulate save success
+            setTimeout(() => {
+              alert(`${getFormTitle(formName)} salvo com sucesso!`);
+              toggleEdit(formName);
+            }, 500);
+          });
+        });
+
+        function getFormTitle(formName) {
+          const titles = {
+            personal: 'Informações pessoais',
+            address: 'Endereço',
+            insurance: 'Plano de saúde',
+            medical: 'Informações médicas',
+            emergency: 'Contato de emergência'
+          };
+          return titles[formName] || formName;
+        }
+
+        // ─── Avatar Change ────────────────────────────────────────────────
+        window.changeAvatar = () => {
+          const input = document.createElement('input');
+          input.type = 'file';
+          input.accept = 'image/*';
+          input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+              console.log('Avatar file selected:', file.name);
+              alert('Funcionalidade de upload de avatar em desenvolvimento');
+              // TODO: Implement avatar upload
+            }
+          };
+          input.click();
+        };
+
+        // ─── Logout ───────────────────────────────────────────────────────
+        window.logout = () => {
+          window.location.href = "/logout";
+        };
+      });
+    </script>
+  </body>
+</html>
