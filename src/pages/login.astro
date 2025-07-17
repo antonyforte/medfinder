@@ -142,32 +142,42 @@
     </div>
   </footer>
 
-  <script>
-    // Simulated login functionality
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      
-      // Simulate authentication - in a real app, this would be an API call
-      if (email && password) {
-        // Simulated successful login
-        const userObj = {
-          email: email,
-          name: "Test User",
-          isLoggedIn: true
-        };
-        
-        // Store user data in localStorage for demonstration
-        localStorage.setItem('medFinderUser', JSON.stringify(userObj));
-        
-        // Redirect to dashboard
-        window.location.href = '/dashboard';
-      } else {
-        alert('Please enter both email and password');
-      }
-    });
-  </script>
+    <script>
+      document
+        .getElementById("loginForm")
+        ?.addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const email = (document.getElementById("email") as HTMLInputElement).value;
+          const senha = (document.getElementById("password") as HTMLInputElement).value;
+
+          try {
+            const res = await fetch(
+              "https://medfinder-fastapi.azurewebsites.net/login",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: email, senha: senha }),
+              },
+            );
+
+            const data = await res.json();
+
+            if (data.success) {
+              localStorage.setItem("usuario_id", data.usuario_id);
+              localStorage.setItem("tipo_usuario", data.tipo);
+              if (data.tipo === "paciente") {
+                window.location.href = "/pacientDashboard";
+              } else {
+                window.location.href = "/medicDashboard";
+              }
+            } else {
+              alert("Email ou senha incorretos.");
+            }
+          } catch (error) {
+            alert("Erro ao conectar à API.");
+          }
+        });
+    </script>
 </body>
 </html>
