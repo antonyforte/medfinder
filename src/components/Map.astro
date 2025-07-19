@@ -14,7 +14,7 @@
   
 <script>
   /// <reference types="@types/google.maps" />
-  function initMap() {
+  (window as any).initMap = function () {
     const loadMap = async () => {
       try {
         const userId = localStorage.getItem("usuario_id");
@@ -27,20 +27,19 @@
         }
 
         const res = await fetch(
-          "https://medfinder-fastapi.azurewebsites.net/medicos",
+          `https://medfinder-fastapi.azurewebsites.net/medicos/${clinicaId}`,
         );
-        const medicos = await res.json();
-        const medico = medicos.find((m: any) => m[0] == clinicaId);
+        const medico = await res.json();
         if (!medico) {
-          alert("Clínica não encontrada.");
+          alert("Médico não encontrado.");
           return;
         }
 
-        const enderecoDoBanco = `${medico[4]}, ${medico[5]} - ${medico[6]}, Brasil`;
+        const enderecoDoBanco = `${medico.logradouro}, ${medico.cidade} - ${medico.cep}, Brasil`;
 
         const geocoder = new google.maps.Geocoder();
-        geocoder.geocode({ address: enderecoDoBanco }, (results: google.maps.GeocoderResult[], status: google.maps.GeocoderStatus) => {
-          if (status === "OK" && results[0]) {
+        geocoder.geocode({ address: enderecoDoBanco }, (results: google.maps.GeocoderResult[] | null, status: google.maps.GeocoderStatus) => {
+          if (status === "OK" && results && results[0]) {
             const location = results[0].geometry.location;
             const map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
               center: location,

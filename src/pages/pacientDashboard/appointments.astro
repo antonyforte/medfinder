@@ -1,91 +1,12 @@
 ---
 import Sidebar from "../../components/Sidebar.astro";
+import "lucide";
+import "@fontsource/inter";
 
-
-/* ─────────────────────────────────────────────────────────────────────────────
-   Simulated appointment data (replace with real API calls once your backend is ready)
-───────────────────────────────────────────────────────────────────────────── */
-const appointments = [
-  {
-    id: 1,
-    doctorName: "Dr. Sarah Johnson",
-    specialty: "Cardiologia",
-    date: "2025-06-15",
-    time: "10:00",
-    status: "confirmed",
-    location: "Downtown Medical Center",
-    type: "Consulta de Rotina",
-    notes: "Exames de acompanhamento cardíaco",
-    initials: "SJ"
-  },
-  {
-    id: 2,
-    doctorName: "Dr. Michael Chen",
-    specialty: "Dermatologia",
-    date: "2025-06-20",
-    time: "14:30",
-    status: "pending",
-    location: "Skin Health Institute",
-    type: "Primeira Consulta",
-    notes: "Avaliação de manchas na pele",
-    initials: "MC"
-  },
-  {
-    id: 3,
-    doctorName: "Dr. Ana Silva",
-    specialty: "Oftalmologia",
-    date: "2025-06-10",
-    time: "09:15",
-    status: "completed",
-    location: "Vision Care Center",
-    type: "Exame de Vista",
-    notes: "Consulta realizada com sucesso",
-    initials: "AS"
-  },
-  {
-    id: 4,
-    doctorName: "Dr. Roberto Lima",
-    specialty: "Clínica Geral",
-    date: "2025-05-28",
-    time: "16:00",
-    status: "completed",
-    location: "Family Health Clinic",
-    type: "Check-up Anual",
-    notes: "Exames gerais de saúde",
-    initials: "RL"
-  },
-  {
-    id: 5,
-    doctorName: "Dr. Carla Santos",
-    specialty: "Psiquiatria",
-    date: "2025-06-25",
-    time: "11:00",
-    status: "confirmed",
-    location: "Mental Health Center",
-    type: "Terapia",
-    notes: "Sessão de acompanhamento",
-    initials: "CS"
-  },
-  {
-    id: 6,
-    doctorName: "Dr. João Ferreira",
-    specialty: "Dentista",
-    date: "2025-05-15",
-    time: "08:30",
-    status: "cancelled",
-    location: "Smile Dental Clinic",
-    type: "Limpeza",
-    notes: "Cancelado pelo paciente",
-    initials: "JF"
-  }
-];
-
-const userProfile = {
-  firstName: "John",
-  lastName: "Doe",
-  email: "john.doe@example.com",
-  initials: "JD",
-};
+// This page will now be rendered dynamically on the client side.
+// The initial data is an empty array.
+const appointments: any[] = [];
+const userProfile = { initials: "JD" };
 ---
 
 <!DOCTYPE html>
@@ -94,7 +15,6 @@ const userProfile = {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MedFinder - Agendamentos</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/umd/lucide.js"></script>
     <style>
       :root {
         --primary: #0B9A7A;
@@ -544,166 +464,147 @@ const userProfile = {
             </button>
           </div>
 
-          <div class="appointments-container">
-            {appointments.map((appointment) => (
-              <div
-                class={`appointment-card ${appointment.status}`}
-                data-status={appointment.status}
-                key={appointment.id}
-              >
-                <div class="appointment-header">
-                  <div class="appointment-main-info">
-                    <div class="doctor-avatar">
-                      {appointment.initials}
-                    </div>
-                    <div class="appointment-info">
-                      <h3>{appointment.doctorName}</h3>
-                      <div class="appointment-specialty">
-                        {appointment.specialty}
-                      </div>
-                      <div class="appointment-type">
-                        {appointment.type}
-                      </div>
-                    </div>
-                  </div>
-                  <div class="appointment-status">
-                    <div class={`status-badge ${appointment.status}`}>
-                      {appointment.status === 'confirmed' && 'Confirmado'}
-                      {appointment.status === 'pending' && 'Pendente'}
-                      {appointment.status === 'completed' && 'Realizado'}
-                      {appointment.status === 'cancelled' && 'Cancelado'}
-                    </div>
-                    <div class="appointment-datetime">
-                      {new Date(appointment.date).toLocaleDateString('pt-BR')} às {appointment.time}
-                    </div>
-                  </div>
-                </div>
-
-                <div class="appointment-details">
-                  <div class="detail-item">
-                    <i data-lucide="map-pin"></i>
-                    <span>{appointment.location}</span>
-                  </div>
-                  <div class="detail-item">
-                    <i data-lucide="clock"></i>
-                    <span>{appointment.time}</span>
-                  </div>
-                  <div class="detail-item">
-                    <i data-lucide="calendar"></i>
-                    <span>{new Date(appointment.date).toLocaleDateString('pt-BR', { 
-                      weekday: 'long',
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}</span>
-                  </div>
-                  <div class="detail-item">
-                    <i data-lucide="file-text"></i>
-                    <span>{appointment.notes}</span>
-                  </div>
-                </div>
-
-                {appointment.status !== 'completed' && appointment.status !== 'cancelled' && (
-                  <div class="appointment-actions">
-                    {appointment.status === 'confirmed' && (
-                      <>
-                        <button class="action-btn primary" onclick={`rescheduleAppointment(${appointment.id})`}>
-                          <i data-lucide="calendar"></i>
-                          Reagendar
-                        </button>
-                        <button class="action-btn secondary" onclick={`viewDetails(${appointment.id})`}>
-                          <i data-lucide="eye"></i>
-                          Ver Detalhes
-                        </button>
-                        <button class="action-btn danger" onclick={`cancelAppointment(${appointment.id})`}>
-                          <i data-lucide="x"></i>
-                          Cancelar
-                        </button>
-                      </>
-                    )}
-                    {appointment.status === 'pending' && (
-                      <>
-                        <button class="action-btn primary" onclick={`confirmAppointment(${appointment.id})`}>
-                          <i data-lucide="check"></i>
-                          Confirmar
-                        </button>
-                        <button class="action-btn secondary" onclick={`rescheduleAppointment(${appointment.id})`}>
-                          <i data-lucide="calendar"></i>
-                          Reagendar
-                        </button>
-                        <button class="action-btn danger" onclick={`cancelAppointment(${appointment.id})`}>
-                          <i data-lucide="x"></i>
-                          Cancelar
-                        </button>
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
+          <div class="appointments-container" id="appointmentsContainer">
+            <p>Carregando agendamentos...</p>
           </div>
         </div>
       </div>
     </div>
 
     <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        // Render all Lucide icons
-        lucide.replace();
+      import { createIcons } from "lucide";
 
-        // ─── Filter Logic ─────────────────────────────────────────────────
+      document.addEventListener("DOMContentLoaded", async () => {
+        const userId = localStorage.getItem("usuario_id");
+        if (!userId) {
+          window.location.href = "/login";
+          return;
+        }
+
+        const container = document.getElementById("appointmentsContainer");
+        if (!container) return;
+
+        try {
+          const [agendasRes, medicosRes] = await Promise.all([
+            fetch("https://medfinder-fastapi.azurewebsites.net/agendas/"),
+            fetch("https://medfinder-fastapi.azurewebsites.net/medicos/")
+          ]);
+
+          const allAgendas: any[] = await agendasRes.json();
+          const allMedicos: any[] = await medicosRes.json();
+          
+          const myAgendas = allAgendas.filter((a: any) => a.paciente_id === parseInt(userId));
+
+          if (myAgendas.length === 0) {
+            container.innerHTML = `<div class="empty-state">
+              <i data-lucide="calendar-off"></i>
+              <h3>Nenhum agendamento encontrado</h3>
+              <p>Você ainda não possui consultas agendadas.</p>
+            </div>`;
+            createIcons();
+            return;
+          }
+
+          container.innerHTML = ""; // Clear loading message
+
+          myAgendas.forEach((agenda: any) => {
+            const medico = allMedicos.find((m: any) => m.id === agenda.medico_id);
+            if (!medico) return;
+
+            const status = agenda.status.toLowerCase();
+            const date = new Date(agenda.data_inicio);
+            const time = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            const formattedDate = date.toLocaleDateString('pt-BR');
+            const fullDate = date.toLocaleDateString('pt-BR', { 
+              weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+            });
+            const initials = medico.nome.split(" ").map((n: string) => n[0]).join("").substring(0, 2).toUpperCase();
+
+            const card = document.createElement("div");
+            card.className = `appointment-card ${status}`;
+            card.setAttribute('data-status', status);
+            card.innerHTML = `
+              <div class="appointment-header">
+                <div class="appointment-main-info">
+                  <div class="doctor-avatar">${initials}</div>
+                  <div class="appointment-info">
+                    <h3>${medico.nome}</h3>
+                    <div class="appointment-specialty">${medico.especialidade}</div>
+                    <div class="appointment-type">Consulta</div>
+                  </div>
+                </div>
+                <div class="appointment-status">
+                  <div class="status-badge ${status}">${agenda.status}</div>
+                  <div class="appointment-datetime">${formattedDate} às ${time}</div>
+                </div>
+              </div>
+              <div class="appointment-details">
+                <div class="detail-item">
+                  <i data-lucide="map-pin"></i>
+                  <span>${medico.logradouro}, ${medico.cidade}</span>
+                </div>
+                <div class="detail-item">
+                  <i data-lucide="clock"></i>
+                  <span>${time}</span>
+                </div>
+                <div class="detail-item">
+                  <i data-lucide="calendar"></i>
+                  <span>${fullDate}</span>
+                </div>
+                <div class="detail-item">
+                  <i data-lucide="file-text"></i>
+                  <span>Notas da consulta aqui...</span>
+                </div>
+              </div>
+              ${status !== 'completed' && status !== 'cancelled' ? `
+              <div class="appointment-actions">
+                <button class="action-btn primary" onclick="alert('Função não implementada')">
+                  <i data-lucide="calendar"></i> Reagendar
+                </button>
+                <button class="action-btn danger" onclick="alert('Função não implementada')">
+                  <i data-lucide="x"></i> Cancelar
+                </button>
+              </div>` : ''}
+            `;
+            container.appendChild(card);
+          });
+
+        } catch (error) {
+          console.error("Erro ao carregar agendamentos:", error);
+          container.innerHTML = `<div class="empty-state">
+            <i data-lucide="alert-triangle"></i>
+            <h3>Erro ao carregar agendamentos</h3>
+            <p>Tente novamente mais tarde.</p>
+          </div>`;
+        } finally {
+          createIcons();
+        }
+
+        // Filter Logic
         const filterBtns = document.querySelectorAll(".filter-btn");
-        const appointmentCards = document.querySelectorAll(".appointment-card");
-
-        filterBtns.forEach((btn) => {
+        filterBtns.forEach((btn: Element) => {
           btn.addEventListener("click", () => {
-            filterBtns.forEach((b) => b.classList.remove("active"));
+            filterBtns.forEach((b: Element) => b.classList.remove("active"));
             btn.classList.add("active");
             const filter = btn.getAttribute("data-filter");
-
-            appointmentCards.forEach((card) => {
+            const appointmentCards = document.querySelectorAll(".appointment-card");
+            appointmentCards.forEach((card: Element) => {
               const status = card.getAttribute("data-status");
               if (filter === "all" || status === filter) {
-                card.style.display = "block";
+                (card as HTMLElement).style.display = "block";
               } else {
-                card.style.display = "none";
+                (card as HTMLElement).style.display = "none";
               }
             });
           });
         });
-
-        // ─── Appointment Actions ─────────────────────────────────────────
-        window.confirmAppointment = (id) => {
-          console.log(`Confirming appointment ${id}`);
-          alert("Agendamento confirmado!");
-          // TODO: Implement API call
-        };
-
-        window.rescheduleAppointment = (id) => {
-          console.log(`Rescheduling appointment ${id}`);
-          alert("Funcionalidade de reagendamento em desenvolvimento");
-          // TODO: Implement rescheduling modal/page
-        };
-
-        window.cancelAppointment = (id) => {
-          if (confirm("Tem certeza que deseja cancelar este agendamento?")) {
-            console.log(`Cancelling appointment ${id}`);
-            alert("Agendamento cancelado!");
-            // TODO: Implement API call
-          }
-        };
-
-        window.viewDetails = (id) => {
-          console.log(`Viewing details for appointment ${id}`);
-          alert("Abrindo detalhes do agendamento");
-          // TODO: Implement details modal or redirect
-        };
-
-        // ─── Logout ───────────────────────────────────────────────────────
-        window.logout = () => {
-          window.location.href = "/logout";
-        };
       });
+
+      // Placeholder functions for actions
+      function rescheduleAppointment(id: number) { alert(`Reschedule ${id}`); }
+      function cancelAppointment(id: number) { alert(`Cancel ${id}`); }
+      function viewDetails(id: number) { alert(`Details ${id}`); }
+      function confirmAppointment(id: number) { alert(`Confirm ${id}`); }
     </script>
   </body>
 </html>

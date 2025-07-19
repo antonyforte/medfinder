@@ -164,15 +164,25 @@
             const data = await res.json();
 
             if (data.success) {
-              localStorage.setItem("usuario_id", data.usuario_id);
-              localStorage.setItem("tipo_usuario", data.tipo);
-              if (data.tipo === "paciente") {
-                window.location.href = "/pacientDashboard";
+              // Backend não retorna o ID, então buscamos na lista de usuários
+              const userRes = await fetch("https://medfinder-fastapi.azurewebsites.net/usuarios");
+              const users: { ID: number; Email: string }[] = await userRes.json();
+              const currentUser = users.find(user => user.Email === email);
+
+              if (currentUser) {
+                localStorage.setItem("usuario_id", currentUser.ID.toString());
+                localStorage.setItem("tipo_usuario", data.tipo);
+                
+                if (data.tipo === "paciente") {
+                  window.location.href = "/pacientDashboard";
+                } else {
+                  window.location.href = "/medicDashboard";
+                }
               } else {
-                window.location.href = "/medicDashboard";
+                alert("Não foi possível encontrar os dados do usuário após o login.");
               }
             } else {
-              alert("Email ou senha incorretos.");
+              alert(data.message || "Email ou senha incorretos.");
             }
           } catch (error) {
             alert("Erro ao conectar à API.");

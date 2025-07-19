@@ -1,47 +1,7 @@
 ---
 import Sidebar from '../../components/Sidebar.astro'
 
-/* SUbstituir aqui a api rest call */
-const chatMessages = [
-  {
-    id: 1,
-    sender: "Dr. Sarah Johnson",
-    time: "2:30 PM",
-    preview: "Your appointment is confirmed for tomorrow at 10 AM",
-    messages: [
-      {
-        content:
-          "Hello! I wanted to confirm your appointment for tomorrow at 10 AM for your cardiology consultation.",
-        sent: false,
-      },
-      {
-        content:
-          "Yes, that works perfectly for me. Should I bring any specific documents?",
-        sent: true,
-      },
-      {
-        content:
-          "Please bring your insurance card, a list of current medications, and any previous cardiac test results if you have them.",
-        sent: false,
-      },
-      { content: "Perfect, I'll have everything ready. Thank you!", sent: true },
-    ],
-  },
-  {
-    id: 2,
-    sender: "Metro Care Clinic",
-    time: "1:45 PM",
-    preview: "Thank you for your visit today. Here are your test results...",
-    messages: [],
-  },
-  {
-    id: 3,
-    sender: "Dr. Michael Chen",
-    time: "Yesterday",
-    preview: "Please remember to apply the prescribed medication twice daily",
-    messages: [],
-  },
-];
+// Data will be fetched client-side
 ---
 
 <!DOCTYPE html>
@@ -60,179 +20,76 @@ const chatMessages = [
         --text-light: #6A8784;
         --accent: #E6F5F2;
       }
-
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
       body {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-        min-height: 100vh;
+        font-family: 'Inter', sans-serif;
+        background-color: var(--secondary);
         color: var(--text-dark);
+        display: flex;
+        justify-content: center;
       }
-
       .container {
         display: flex;
         min-height: 100vh;
+        width: 100%;
         max-width: 1400px;
-        margin: 0 auto;
         background: white;
         box-shadow: 0 0 50px rgba(0,0,0,0.1);
       }
-
-      /* ─── Sidebar (igual ao index.astro) ───────────────────────────────────────────────── */
-
-      /* ─── Conteúdo Principal ───────────────────────────────────────────────────────── */
       .main-content {
         flex: 1;
         display: flex;
         flex-direction: column;
-        background: var(--secondary);
-        margin-left: 280px;
-        padding: 2rem;
       }
-
-      .header {
-        background: white;
-        padding: 1.5rem 2rem;
-        border-bottom: 1px solid var(--accent);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-      }
-
-      .search-bar {
-        flex: 1;
-        max-width: 500px;
-        position: relative;
-      }
-
-      .search-input {
-        width: 100%;
-        padding: 0.75rem 1rem 0.75rem 3rem;
-        border: 2px solid var(--accent);
-        border-radius: 25px;
-        font-size: 1rem;
-        outline: none;
-        transition: all 0.3s ease;
-      }
-
-      .search-input:focus {
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(11, 154, 122, 0.1);
-      }
-
-      .search-icon {
-        position: absolute;
-        left: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--text-light);
-      }
-
-      .user-profile {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-      }
-
-      .notification-btn {
-        position: relative;
-        padding: 0.5rem;
-        border: none;
-        background: none;
-        cursor: pointer;
-        border-radius: 50%;
-        transition: background 0.3s ease;
-      }
-
-      .notification-btn:hover {
-        background: var(--secondary);
-      }
-
-      .notification-badge {
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 8px;
-        height: 8px;
-        background: #e74c3c;
-        border-radius: 50%;
-      }
-
-      .user-avatar {
-        width: 40px;
-        height: 40px;
-        background: linear-gradient(45deg, var(--primary), var(--primary-dark));
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: 600;
-      }
-
-      /* ─── Chat Container ───────────────────────────────────────────────────────── */
       .chat-container {
         display: flex;
-        height: 100%;
-        background: white;
-        border-radius: 15px;
+        flex-grow: 1;
         overflow: hidden;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        margin: 2rem;
       }
-
       .chat-sidebar {
-        width: 300px;
-        background: var(--secondary);
+        width: 320px;
         border-right: 1px solid var(--accent);
+        display: flex;
+        flex-direction: column;
       }
-
       .chat-header {
         padding: 1.5rem;
         border-bottom: 1px solid var(--accent);
-        background: white;
       }
-
+      .chat-header h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+      }
       .chat-list {
         overflow-y: auto;
-        height: calc(100% - 80px);
+        flex-grow: 1;
       }
-
       .chat-item {
         padding: 1rem 1.5rem;
         border-bottom: 1px solid var(--accent);
         cursor: pointer;
-        transition: background 0.3s ease;
+        transition: background 0.2s ease;
       }
-
-      .chat-item:hover,
+      .chat-item:hover {
+        background: var(--accent);
+      }
       .chat-item.active {
-        background: white;
+        background: var(--primary);
+        color: white;
       }
-
+      .chat-item.active .chat-item-name,
+      .chat-item.active .chat-item-time,
+      .chat-item.active .chat-item-preview {
+        color: white;
+      }
       .chat-item-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 0.5rem;
       }
-
       .chat-item-name {
         font-weight: 600;
-        color: var(--text-dark);
       }
-
-      .chat-item-time {
-        font-size: 0.8rem;
-        color: var(--text-light);
-      }
-
       .chat-item-preview {
         color: var(--text-light);
         font-size: 0.9rem;
@@ -240,61 +97,56 @@ const chatMessages = [
         overflow: hidden;
         text-overflow: ellipsis;
       }
-
       .chat-main {
         flex: 1;
         display: flex;
         flex-direction: column;
       }
-
+      .chat-main-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--accent);
+        font-weight: 600;
+        font-size: 1.2rem;
+      }
       .chat-messages {
         flex: 1;
         padding: 1.5rem;
         overflow-y: auto;
         background: var(--secondary);
       }
-
       .message {
         margin-bottom: 1rem;
         display: flex;
-        align-items: flex-start;
-        gap: 0.5rem;
+        max-width: 80%;
       }
-
       .message.sent {
+        margin-left: auto;
         flex-direction: row-reverse;
       }
-
       .message-content {
-        max-width: 70%;
-        padding: 1rem;
+        padding: 0.75rem 1rem;
         border-radius: 15px;
         background: white;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
       }
-
       .message.sent .message-content {
         background: var(--primary);
         color: white;
       }
-
-      .chat-input {
-        padding: 1.5rem;
+      .chat-input-area {
+        padding: 1rem;
         background: white;
         border-top: 1px solid var(--accent);
         display: flex;
         gap: 1rem;
-        align-items: center;
       }
-
-      .chat-input input {
+      .chat-input {
         flex: 1;
-        padding: 0.75rem;
+        padding: 0.75rem 1rem;
         border: 1px solid var(--accent);
         border-radius: 25px;
         outline: none;
       }
-
       .send-btn {
         padding: 0.75rem 1.5rem;
         background: var(--primary);
@@ -302,107 +154,28 @@ const chatMessages = [
         border: none;
         border-radius: 25px;
         cursor: pointer;
-        transition: background 0.3s ease;
-      }
-
-      .send-btn:hover {
-        background: var(--primary-dark);
-      }
-
-      @media (max-width: 768px) {
-        .container {
-          flex-direction: column;
-        }
-
-        .sidebar {
-          width: 100%;
-          flex-direction: row;
-          padding: 1rem;
-          order: 2;
-        }
-
-        .nav-menu {
-          display: flex;
-          gap: 1rem;
-          overflow-x: auto;
-        }
-
-        .nav-item {
-          white-space: nowrap;
-          min-width: fit-content;
-        }
       }
     </style>
   </head>
-
   <body>
     <div class="container">
       <Sidebar currentPage="chats" userInitials="JD" />
-
       <div class="main-content">
-        <header class="header">
-          <div class="search-bar">
-            <i data-lucide="search" class="search-icon"></i>
-            <input
-              type="text"
-              class="search-input"
-              placeholder="Search..."
-            />
-          </div>
-
-          <div class="user-profile">
-            <button class="notification-btn">
-              <i data-lucide="bell"></i>
-              <div class="notification-badge"></div>
-            </button>
-            <!-- Poder vir do frontmatter ou de um fetch -->
-            <div class="user-avatar">JD</div>
-          </div>
-        </header>
-
         <div class="chat-container">
           <div class="chat-sidebar">
             <div class="chat-header">
               <h3>Chats</h3>
             </div>
-            <div class="chat-list">
-              {chatMessages.map((chat, index) => (
-                <div
-                  class={`chat-item ${index === 0 ? "active" : ""}`}
-                  data-id={chat.id}
-                  key={chat.id}
-                  onclick={`selectChat(${chat.id})`}
-                >
-                  <div class="chat-item-header">
-                    <span class="chat-item-name">{chat.sender}</span>
-                    <span class="chat-item-time">{chat.time}</span>
-                  </div>
-                  <div class="chat-item-preview">{chat.preview}</div>
-                </div>
-              ))}
+            <div class="chat-list" id="chatList">
+              <p style="padding: 1rem;">Carregando conversas...</p>
             </div>
           </div>
-
-          <div class="chat-main">
-            <div class="chat-messages" id="chatMessages">
-              {chatMessages[0].messages.map((message) => (
-                <div class={`message ${message.sent ? "sent" : ""}`} key={message.content}>
-                  <div class="message-content">
-                    <p>{message.content}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div class="chat-input">
-              <input
-                type="text"
-                placeholder="Digite sua mensagem..."
-                id="messageInput"
-              />
-              <button class="send-btn" onclick="sendMessage()">
-                Enviar
-              </button>
+          <div class="chat-main" id="chatMain" style="display: none;">
+            <div class="chat-main-header" id="chatMainHeader"></div>
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="chat-input-area">
+              <input type="text" class="chat-input" id="messageInput" placeholder="Digite sua mensagem..." />
+              <button class="send-btn" id="sendBtn">Enviar</button>
             </div>
           </div>
         </div>
@@ -410,62 +183,139 @@ const chatMessages = [
     </div>
 
     <script>
-      const chatMessages = JSON.parse(`<!--#--> ${JSON.stringify(chatMessages).replace(/</g, '\\u003c').replace(/>/g, '\\u003e')}`);
+      declare const lucide: any;
 
-      document.addEventListener("DOMContentLoaded", () => {
-        lucide.replace();
+      document.addEventListener("DOMContentLoaded", async () => {
+        const userId = localStorage.getItem("usuario_id");
+        const userType = localStorage.getItem("tipo_usuario");
+        if (!userId) {
+          window.location.href = "/login";
+          return;
+        }
 
-        // Seleciona e mostra as mensagens da conversa clicada
-        window.selectChat = (id) => {
-          const chatListItems = document.querySelectorAll(".chat-item");
-          const chatMain = document.getElementById("chatMessages");
-          const chat = chatMessages.find((c) => c.id === id);
+        const API_BASE_URL = "https://medfinder-fastapi.azurewebsites.net";
+        const WS_BASE_URL = "wss://medfinder-fastapi.azurewebsites.net";
+        
+        const chatListEl = document.getElementById("chatList");
+        const chatMainEl = document.getElementById("chatMain");
+        const chatMainHeaderEl = document.getElementById("chatMainHeader");
+        const chatMessagesEl = document.getElementById("chatMessages");
+        const messageInputEl = document.getElementById("messageInput") as HTMLInputElement;
+        const sendBtnEl = document.getElementById("sendBtn");
 
-          chatListItems.forEach((item) => {
-            const cid = Number(item.getAttribute("data-id"));
-            if (cid === id) item.classList.add("active");
-            else item.classList.remove("active");
+        let conversations: any[] = [];
+        let activeConversation: any = null;
+        let socket: WebSocket | null = null;
+
+        async function loadConversations() {
+          if (!chatListEl) return;
+          try {
+            const res = await fetch(`${API_BASE_URL}/usuarios/${userId}/conversas`);
+            conversations = await res.json();
+            chatListEl.innerHTML = "";
+            if (conversations.length === 0) {
+              chatListEl.innerHTML = "<p style='padding: 1rem;'>Nenhuma conversa encontrada.</p>";
+              return;
+            }
+            conversations.forEach((convo: any) => {
+              const otherUserName = userType === 'paciente' ? convo.MedicoNome : convo.PacienteNome;
+              const item = document.createElement("div");
+              item.className = "chat-item";
+              (item as HTMLElement).dataset.convoId = convo.ConversaID;
+              item.innerHTML = `
+                <div class="chat-item-header">
+                  <span class="chat-item-name">${otherUserName}</span>
+                </div>
+                <div class="chat-item-preview">Clique para ver as mensagens</div>
+              `;
+              item.addEventListener("click", () => selectConversation(convo));
+              chatListEl.appendChild(item);
+            });
+          } catch (err) {
+            chatListEl.innerHTML = "<p style='padding: 1rem;'>Erro ao carregar conversas.</p>";
+            console.error(err);
+          }
+        }
+
+        async function selectConversation(convo: any) {
+          activeConversation = convo;
+          if(chatMainEl) chatMainEl.style.display = "flex";
+          
+          document.querySelectorAll(".chat-item").forEach(item => {
+            item.classList.toggle("active", (item as HTMLElement).dataset.convoId == convo.ConversaID);
           });
 
-          chatMain.innerHTML = "";
-          chat.messages.forEach((m) => {
-            const div = document.createElement("div");
-            div.classList.add("message", m.sent ? "sent" : "");
-            const contentDiv = document.createElement("div");
-            contentDiv.classList.add("message-content");
-            const p = document.createElement("p");
-            p.textContent = m.content;
-            contentDiv.appendChild(p);
-            div.appendChild(contentDiv);
-            chatMain.appendChild(div);
-          });
-          chatMain.scrollTop = chatMain.scrollHeight;
-        };
+          const otherUserName = userType === 'paciente' ? convo.MedicoNome : convo.PacienteNome;
+          if(chatMainHeaderEl) chatMainHeaderEl.textContent = `Conversa com ${otherUserName}`;
+          
+          await loadMessageHistory(convo.ConversaID);
+          connectWebSocket(convo.ConversaID);
+        }
 
-        // Envia nova mensagem (simulado)
-        window.sendMessage = () => {
-          const input = document.getElementById("messageInput");
-          const text = input.value.trim();
+        async function loadMessageHistory(convoId: number) {
+          if (!chatMessagesEl) return;
+          chatMessagesEl.innerHTML = "<p>Carregando histórico...</p>";
+          try {
+            const res = await fetch(`${API_BASE_URL}/historico/${convoId}`);
+            const messages = await res.json();
+            chatMessagesEl.innerHTML = "";
+            messages.forEach(renderMessage);
+          } catch (err) {
+            console.error(err);
+          }
+        }
+
+        function connectWebSocket(convoId: number) {
+          if (socket) socket.close();
+          socket = new WebSocket(`${WS_BASE_URL}/ws/${convoId}/${userId}`);
+          
+          socket.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+            if (activeConversation && message.conversa_id === activeConversation.ConversaID) {
+              renderMessage({
+                RemetenteUsuarioID: message.remetente_id,
+                Texto: message.texto
+              });
+            }
+          };
+          socket.onerror = (err) => console.error("WebSocket error:", err);
+        }
+
+        function renderMessage(msg: any) {
+          if (!chatMessagesEl) return;
+          const msgEl = document.createElement("div");
+          msgEl.className = `message ${msg.RemetenteUsuarioID == userId ? 'sent' : 'received'}`;
+          msgEl.innerHTML = `<div class="message-content"><p>${msg.Texto}</p></div>`;
+          chatMessagesEl.appendChild(msgEl);
+          chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+        }
+
+        function sendMessage() {
+          if (!socket || socket.readyState !== WebSocket.OPEN || !activeConversation || !messageInputEl) return;
+          const text = messageInputEl.value.trim();
           if (!text) return;
-          const chatMain = document.getElementById("chatMessages");
-          const div = document.createElement("div");
-          div.classList.add("message", "sent");
-          const contentDiv = document.createElement("div");
-          contentDiv.classList.add("message-content");
-          const p = document.createElement("p");
-          p.textContent = text;
-          contentDiv.appendChild(p);
-          div.appendChild(contentDiv);
-          chatMain.appendChild(div);
-          input.value = "";
-          chatMain.scrollTop = chatMain.scrollHeight;
-          // TODO: POST real a /api/sendMessage
-        };
 
-        // Logout (simulado)
-        window.logout = () => {
-          window.location.href = "/logout";
-        };
+          const otherUserId = userType === 'paciente' 
+            ? activeConversation.MedicoUsuarioID 
+            : activeConversation.PacienteUsuarioID;
+
+          const payload = {
+            texto: text,
+            destinatario_id: otherUserId
+          };
+          socket.send(JSON.stringify(payload));
+          
+          renderMessage({ RemetenteUsuarioID: parseInt(userId!), Texto: text });
+          messageInputEl.value = "";
+        }
+
+        sendBtnEl?.addEventListener("click", sendMessage);
+        messageInputEl?.addEventListener("keypress", (e: KeyboardEvent) => {
+          if (e.key === "Enter") sendMessage();
+        });
+
+        loadConversations();
+        lucide.createIcons();
       });
     </script>
   </body>

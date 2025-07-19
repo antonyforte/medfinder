@@ -11,9 +11,11 @@
   "dependencies": {
     "@astrojs/deno": "^5.0.1",
     "@auth/core": "^0.37.4",
+    "@fontsource/inter": "^5.2.6",
     "@types/google.maps": "^3.58.1",
     "astro": "^5.7.9",
     "auth-astro": "^4.2.0",
-    "better-auth": "^1.2.7"
+    "better-auth": "^1.2.7",
+    "lucide": "^0.525.0"
   }
 }

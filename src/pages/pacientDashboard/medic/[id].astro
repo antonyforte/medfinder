@@ -1,75 +1,55 @@
 ---
-import Map from '../../../components/Map.astro'
-/* ─────────────────────────────────────────────────────────────────────────────
-   Simulated data for the clinic/medic detail page
-   Replace with real API calls using the [id] parameter
-───────────────────────────────────────────────────────────────────────────── */
+import Map from "../../../components/Map.astro";
+import "lucide";
+import "@fontsource/inter";
 
-// Get the ID from the URL parameters
 const { id } = Astro.params;
 
-// Simulated provider data (replace with actual API call using the id)
-const provider = {
-  id: id,
-  name: "Dr. Sarah Johnson",
-  specialty: "Cardiologist",
-  type: "doctor",
-  rating: 4.9,
-  reviews: 127,
-  location: "Downtown Medical Center",
-  address: "123 Medical Plaza, Downtown City",
-  phone: "+1 (555) 123-4567",
-  email: "contact@downtownmedical.com",
-  initials: "SJ",
-  description: "Experienced cardiologist with over 15 years of practice. Specialized in preventive cardiology and heart disease management.",
-};
+if (!id) {
+  return new Response("ID do médico não fornecido.", { status: 400 });
+}
 
-// Simulated available time slots
-const availableSlots = [
-  { date: "2025-06-07", slots: ["09:00", "10:30", "14:00", "15:30"] },
-  { date: "2025-06-08", slots: ["08:30", "11:00", "16:00"] },
-  { date: "2025-06-09", slots: ["09:30", "13:00", "14:30", "17:00"] },
-  { date: "2025-06-10", slots: ["10:00", "11:30", "15:00"] },
-];
+const response = await fetch(
+  `https://medfinder-fastapi.azurewebsites.net/medicos/${id}`
+);
+const provider = await response.json();
 
-// Simulated user reviews
+const slotsResponse = await fetch(
+  `https://medfinder-fastapi.azurewebsites.net/agendas/`
+);
+const allSlots = await slotsResponse.json();
+const availableSlots = Array.isArray(allSlots) ? allSlots.filter(slot => slot.medico_id === parseInt(id)) : [];
+
 const reviews = [
   {
     id: 1,
     userName: "Maria Silva",
     rating: 5,
     date: "2025-05-28",
-    comment: "Excellent professional! Very attentive and explained everything clearly. Highly recommend!",
-    initials: "MS"
+    comment:
+      "Excellent professional! Very attentive and explained everything clearly. Highly recommend!",
+    initials: "MS",
   },
   {
     id: 2,
     userName: "João Santos",
     rating: 5,
     date: "2025-05-25",
-    comment: "Dr. Sarah is amazing. She took time to listen to all my concerns and provided great care.",
-    initials: "JS"
+    comment:
+      "Dr. Sarah is amazing. She took time to listen to all my concerns and provided great care.",
+    initials: "JS",
   },
   {
     id: 3,
     userName: "Ana Costa",
     rating: 4,
     date: "2025-05-20",
-    comment: "Very professional service. The clinic is well-organized and the staff is friendly.",
-    initials: "AC"
+    comment:
+      "Very professional service. The clinic is well-organized and the staff is friendly.",
+    initials: "AC",
   },
 ];
 
-const userProfile = {
-  firstName: "John",
-  lastName: "Doe",
-  initials: "JD",
-};
-
-const appointmentData = {
-    providerId: "{provider.id}",
-    providerName: "{provider.name}",
-};
 ---
 
 <!DOCTYPE html>
@@ -77,8 +57,7 @@ const appointmentData = {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MedFinder - {provider.name}</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/umd/lucide.js"></script>
+    <title>MedFinder - {provider.nome}</title>
     <style>
       :root {
         --primary: #0B9A7A;
@@ -405,77 +384,6 @@ const appointmentData = {
         font-weight: 600;
       }
 
-      .calendar-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-      }
-
-      .date-card {
-        background: var(--secondary);
-        border-radius: 15px;
-        padding: 1.5rem;
-        border: 2px solid var(--accent);
-        transition: all 0.3s ease;
-        cursor: pointer;
-      }
-
-      .date-card:hover {
-        border-color: var(--primary);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(11, 154, 122, 0.15);
-      }
-
-      .date-card.selected {
-        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-        color: white;
-        border-color: var(--primary-dark);
-      }
-
-      .date-header {
-        font-weight: 600;
-        font-size: 1.1rem;
-        margin-bottom: 1rem;
-        color: var(--text-dark);
-      }
-
-      .date-card.selected .date-header {
-        color: white;
-      }
-
-      .time-slots {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 0.5rem;
-      }
-
-      .time-slot {
-        padding: 0.5rem;
-        background: white;
-        border-radius: 8px;
-        text-align: center;
-        font-size: 0.9rem;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        cursor: pointer;
-        border: 1px solid var(--accent);
-      }
-
-      .time-slot:hover {
-        background: var(--primary);
-        color: white;
-      }
-
-      .date-card.selected .time-slot {
-        background: rgba(255, 255, 255, 0.2);
-        color: white;
-        border-color: rgba(255, 255, 255, 0.3);
-      }
-
-      .date-card.selected .time-slot:hover {
-        background: rgba(255, 255, 255, 0.3);
-      }
 
       .appointment-form {
         background: var(--secondary);
@@ -645,7 +553,7 @@ const appointmentData = {
     </style>
   </head>
 
-  <body>
+  <body data-provider={JSON.stringify(provider)} data-slots={JSON.stringify(availableSlots)}>
     <div class="container">
       <div class="main-content">
         <header class="header">
@@ -659,7 +567,7 @@ const appointmentData = {
               <i data-lucide="bell"></i>
               <div class="notification-badge"></div>
             </button>
-            <div class="user-avatar">{userProfile.initials}</div>
+            <div class="user-avatar"></div>
           </div>
         </header>
 
@@ -668,29 +576,29 @@ const appointmentData = {
           <div class="provider-header-section">
             <div class="provider-main-info">
               <div class="provider-avatar">
-                {provider.initials}
+                {provider.nome.split(" ").map((n: string) => n[0]).join("").substring(0, 2).toUpperCase()}
               </div>
               <div class="provider-details">
-                <h1>{provider.name}</h1>
-                <div class="provider-specialty">{provider.specialty}</div>
+                <h1>{provider.nome}</h1>
+                <div class="provider-specialty">{provider.especialidade}</div>
                 <div class="provider-rating">
                   <div class="stars">★★★★★</div>
                   <span class="rating-text">
-                    {provider.rating} ({provider.reviews} avaliações)
+                    4.9 (127 avaliações)
                   </span>
                 </div>
                 <div class="provider-contact">
                   <div class="contact-item">
                     <i data-lucide="map-pin"></i>
-                    <span>{provider.address}</span>
+                    <span>{provider.logradouro}, {provider.cidade}</span>
                   </div>
                   <div class="contact-item">
                     <i data-lucide="phone"></i>
-                    <span>{provider.phone}</span>
+                    <span>(XX) XXXX-XXXX</span>
                   </div>
                   <div class="contact-item">
                     <i data-lucide="mail"></i>
-                    <span>{provider.email}</span>
+                    <span>{provider.email || 'Não informado'}</span>
                   </div>
                 </div>
               </div>
@@ -706,7 +614,7 @@ const appointmentData = {
             <div class="map-placeholder">
               <i data-lucide="map-pin"></i>
               <Map />
-              <small>Rota entre você e {provider.name}</small>
+              <small>Rota entre você e {provider.nome}</small>
             </div>
           </div>
 
@@ -717,63 +625,19 @@ const appointmentData = {
               <h2>Agendar Consulta</h2>
             </div>
 
-            <div class="calendar-grid">
-              {availableSlots.map((daySlot) => (
-                <div class="date-card" data-date={daySlot.date}>
-                  <div class="date-header">
-                    {new Date(daySlot.date).toLocaleDateString('pt-BR', { 
-                      weekday: 'long', 
-                      day: 'numeric', 
-                      month: 'long' 
-                    })}
-                  </div>
-                  <div class="time-slots">
-                    {daySlot.slots.map((slot) => (
-                      <div class="time-slot" data-time={slot}>{slot}</div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-
             <div class="appointment-form">
               <div class="form-row">
                 <div class="form-group">
-                  <label for="patientName">Nome Completo</label>
-                  <input type="text" id="patientName" class="form-input" value={`${userProfile.firstName} ${userProfile.lastName}`} />
-                </div>
-                <div class="form-group">
-                  <label for="patientPhone">Telefone</label>
-                  <input type="tel" id="patientPhone" class="form-input" placeholder="(11) 99999-9999" />
+                  <label for="data_inicio">Data e Hora de Início</label>
+                  <input type="datetime-local" id="data_inicio" class="form-input">
                 </div>
               </div>
               <div class="form-row">
-                <div class="form-group">
-                  <label for="appointmentType">Tipo de Consulta</label>
-                  <select id="appointmentType" class="form-input">
-                    <option>Consulta Regular</option>
-                    <option>Consulta de Retorno</option>
-                    <option>Consulta de Urgência</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="insurance">Convênio</label>
-                  <select id="insurance" class="form-input">
-                    <option>Particular</option>
-                    <option>SUS</option>
-                    <option>Unimed</option>
-                    <option>Bradesco Saúde</option>
-                  </select>
-                </div>
+                <button id="bookBtn" class="book-btn" onclick="bookAppointment()">
+                  <i data-lucide="calendar-check"></i>
+                  Confirmar Agendamento
+                </button>
               </div>
-              <div class="form-group">
-                <label for="notes">Observações (opcional)</label>
-                <textarea id="notes" class="form-input" rows="3" placeholder="Descreva brevemente o motivo da consulta ou observações importantes..."></textarea>
-              </div>
-              <button class="book-btn" onclick="bookAppointment()">
-                <i data-lucide="calendar-check"></i>
-                Confirmar Agendamento
-              </button>
             </div>
           </div>
 
@@ -812,60 +676,63 @@ const appointmentData = {
       </div>
     </div>
 
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        // Render all Lucide icons
-        lucide.replace();
+    <script is:inline>
+      window.bookAppointment = async function() {
+        const provider = JSON.parse(document.body.dataset.provider);
+        const dataInicioValue = document.getElementById('data_inicio').value;
 
-        
+        if (!dataInicioValue) {
+          alert("Por favor, preencha a data de início.");
+          return;
+        }
 
-        dateCards.forEach((card) => {
-          card.addEventListener("click", () => {
-            dateCards.forEach((c) => c.classList.remove("selected"));
-            card.classList.add("selected");
-            selectedDate = card.getAttribute("data-date");
-            selectedTime = null; // Reset time selection
+        const patientId = localStorage.getItem("usuario_id");
+        if (!patientId) {
+          window.location.href = "/login";
+          return;
+        }
+
+        const data_inicio = new Date(dataInicioValue);
+        const data_fim = new Date(data_inicio.getTime() + 2 * 60 * 60 * 1000);
+
+        const appointmentData = {
+          medico_id: provider.id,
+          paciente_id: parseInt(patientId),
+          data_inicio: data_inicio.toISOString(),
+          data_fim: data_fim.toISOString(),
+          status: "pendente",
+        };
+
+        try {
+          const response = await fetch("https://medfinder-fastapi.azurewebsites.net/agendas/", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(appointmentData)
           });
-        });
 
-        timeSlots.forEach((slot) => {
-          slot.addEventListener("click", () => {
-            if (!selectedDate) {
-              alert("Por favor, selecione uma data primeiro.");
-              return;
-            }
-            
-            // Remove selection from all time slots
-            timeSlots.forEach((s) => s.classList.remove("selected"));
-            slot.classList.add("selected");
-            selectedTime = slot.getAttribute("data-time");
-          });
-        });
-
-        // ─── Appointment Booking Logic ─────────────────────────────────────
-        window.bookAppointment = () => {
-          if (!selectedDate || !selectedTime) {
-            alert("Por favor, selecione uma data e horário.");
-            return;
+          if (response.ok) {
+            alert(`Agendamento confirmado!\n\nData de Início: ${data_inicio.toLocaleString('pt-BR')}\nData de Fim: ${data_fim.toLocaleString('pt-BR')}\nMédico: ${provider.nome}`);
+            window.location.href = "/pacientDashboard/appointments";
+          } else {
+            const error = await response.json();
+            alert(`Erro ao agendar: ${error.detail}`);
           }
+        } catch (error) {
+          console.error("Erro ao agendar:", error);
+          alert("Ocorreu um erro ao tentar agendar a consulta.");
+        }
+      };
 
+      window.logout = () => {
+        localStorage.removeItem("usuario_id");
+        localStorage.removeItem("tipo_usuario");
+        window.location.href = "/login";
+      };
 
-          console.log("Appointment data:", appointmentData);
-          
-          // TODO: Replace with actual API call
-          // fetch('/api/appointments', {
-          //   method: 'POST',
-          //   headers: { 'Content-Type': 'application/json' },
-          //   body: JSON.stringify(appointmentData)
-          // })
-
-          alert(`Agendamento confirmado!\n\nData: ${new Date(selectedDate).toLocaleDateString('pt-BR')}\nHorário: ${selectedTime}\nMédico: {provider.name}`);
-        };
-
-        // ─── Logout Function ──────────────────────────────────────────────
-        window.logout = () => {
-          window.location.href = "/logout";
-        };
+      document.addEventListener('astro:page-load', () => {
+        if (typeof lucide !== 'undefined') {
+          lucide.createIcons();
+        }
       });
     </script>
   </body>
