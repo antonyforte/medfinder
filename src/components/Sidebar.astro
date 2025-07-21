@@ -66,6 +66,19 @@ data-page="home"
   </div>
 </div>
 
+<script>
+  declare global {
+    interface Window {
+      logout: () => void;
+    }
+  }
+  window.logout = function() {
+    localStorage.removeItem("usuario_id");
+    localStorage.removeItem("tipo_usuario");
+    window.location.href = "/login";
+  }
+</script>
+
 <style>
   /* ─── Sidebar Styles ────────────────────────────────────────────────────── */
   .sidebar {

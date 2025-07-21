@@ -10,10 +10,12 @@
   <title>Dashboard</title>
   <style>
     :root {
-      --sidebar-width: 200px;
-      --sidebar-bg: #16403C;
-      --primary-color: #07b38d;
-      --text-color: #6A8784;
+      --primary: #0B9A7A;
+      --primary-dark: #0A8A6E;
+      --accent: #E91E63;
+      --text-dark: #1F2937;
+      --text-light: #F3F4F6;
+      --background: #F9FAFB;
     }
 
     body {
@@ -22,93 +24,154 @@
       font-family: 'Arial', sans-serif;
       display: flex;
       min-height: 100vh;
+      background-color: var(--background);
     }
 
     .sidebar {
-      width: var(--sidebar-width);
-      background-color: var(--sidebar-bg);
-      padding: 20px 0;
+      width: 280px;
+      background: linear-gradient(180deg, var(--text-dark) 0%, var(--primary-dark) 100%);
+      padding: 2rem 0;
       display: flex;
       flex-direction: column;
-      height: 100vh;
       position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      overflow-y: auto;
+      z-index: 1000;
     }
 
-    .sidebar-logo {
-      padding: 20px;
+    .logo {
+      padding: 0 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .logo h1 {
+      color: white;
+      font-size: 1.8rem;
+      font-weight: 700;
       display: flex;
-      justify-content: center;
       align-items: center;
-      margin-bottom: 20px;
+      gap: 0.5rem;
     }
 
-    .sidebar-logo img {
-      max-width: 40px;
-    }
-
-    .sidebar-nav {
+    .logo .icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(45deg, var(--primary), var(--accent));
+      border-radius: 8px;
       display: flex;
-      flex-direction: column;
-      flex-grow: 1;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-menu {
+      flex: 1;
+      padding: 0 1rem;
     }
 
     .nav-item {
-      padding: 15px 20px;
-      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.5rem;
+      margin: 0.5rem 0;
+      color: var(--text-light);
+      cursor: pointer;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      position: relative;
       text-decoration: none;
-      font-size: 1rem;
-      transition: background-color 0.3s;
     }
 
-    .nav-item:hover, .nav-item.active {
-      background-color: #a0a0a033;
-      color: var(--primary-color);
-      border: 1px solid #07b38d;
+    .nav-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      transform: translateX(5px);
+    }
+
+    .nav-item.active {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      box-shadow: 0 4px 15px rgba(11, 154, 122, 0.3);
+      cursor: default;
+    }
+
+    .nav-item i {
+      width: 20px;
+      height: 20px;
+    }
+
+    .logout-section {
+      padding: 0 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 1rem;
     }
 
     .main-content {
       flex-grow: 1;
-      margin-left: var(--sidebar-width);
+      margin-left: 280px;
       padding: 30px;
-    }
-
-    .bottom-nav {
-      margin-top: auto;
-    }
-
-    .emoji-text {
-      color: #e91e63;
-      margin-top: auto;
-      padding: 15px 20px;
-      text-align: center;
     }
   </style>
 </head>
 <body>
   <div class="sidebar">
-    <div class="sidebar-logo">
-      <img src="/logo.svg" alt="Logo">
+    <div class="logo">
+      <h1>
+        <div class="icon">
+          <i data-lucide="heart-pulse"></i>
+        </div>
+        MedFinder
+      </h1>
     </div>
-    <nav class="sidebar-nav">
-      <a href="/medicDashboard" class={Astro.url.pathname === '/medicDashboard' ? 'nav-item active' : 'nav-item'}>Início</a>
-      <a href="/medicDashboard/chats" class={Astro.url.pathname === '/medicDashboard/conversas' ? 'nav-item active' : 'nav-item'}>Conversas</a>
-      <a href="/medicDashboard/schedule" class={Astro.url.pathname === '/medicDashboard/schedule' ? 'nav-item active' : 'nav-item'}>Agenda</a>
-      <a href="/medicDashboard/medics" class={Astro.url.pathname === '/medicDashboard/medicos' ? 'nav-item active' : 'nav-item'}>Médicos</a>
-      <a href="/medicDashboard/configuration" class={Astro.url.pathname === '/medicDashboard/configuracao' ? 'nav-item active' : 'nav-item'}>Configuração</a>
-      <a href="/medicDashboard/ajuda" class={Astro.url.pathname === '/medicDashboard/ajuda' ? 'nav-item active' : 'nav-item'}>Ajuda</a>
-      
-      <div class="emoji-text">
-        Substituir texto por emojis ?
-      </div>
-      
-      <div class="bottom-nav">
-        <a href="/logout" class="nav-item">Sair</a>
-      </div>
+    <nav class="nav-menu">
+      <a href="/medicDashboard" class:list={['nav-item', { 'active': Astro.url.pathname === '/medicDashboard' }]}>
+        <i data-lucide="home"></i>
+        <span>Início</span>
+      </a>
+      <a href="/medicDashboard/chats" class:list={['nav-item', { 'active': Astro.url.pathname === '/medicDashboard/chats' }]}>
+        <i data-lucide="message-circle"></i>
+        <span>Conversas</span>
+      </a>
+      <a href="/medicDashboard/schedule" class:list={['nav-item', { 'active': Astro.url.pathname === '/medicDashboard/schedule' }]}>
+        <i data-lucide="calendar"></i>
+        <span>Agenda</span>
+      </a>
+      <a href="/medicDashboard/configuration" class:list={['nav-item', { 'active': Astro.url.pathname === '/medicDashboard/configuration' }]}>
+        <i data-lucide="settings"></i>
+        <span>Configuração</span>
+      </a>
     </nav>
+    <div class="logout-section">
+      <div class="nav-item" onclick="logout()">
+        <i data-lucide="log-out"></i>
+        <span>Sair</span>
+      </div>
+    </div>
   </div>
   
   <main class="main-content">
     <slot />
   </main>
+  <script>
+    import { createIcons, icons } from 'lucide';
+
+    declare global {
+      interface Window {
+        logout: () => void;
+      }
+    }
+
+    document.addEventListener('astro:page-load', () => {
+      createIcons({ icons });
+    });
+
+    window.logout = function() {
+      localStorage.removeItem('usuario_id');
+      localStorage.removeItem('tipo_usuario');
+      window.location.href = '/login';
+    }
+  </script>
 </body>
 </html>

@@ -10,207 +10,7 @@ import "@fontsource/inter";
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MedFinder Dashboard</title>
-    <style>
-      :root {
-        --primary: #0b9a7a;
-        --primary-dark: #097f66;
-        --secondary: #f5f9f8;
-        --text-dark: #16403c;
-        --text-light: #6a8784;
-        --accent: #e6f5f2;
-      }
-      body {
-        font-family: "Inter", sans-serif;
-        background-color: var(--secondary);
-        color: var(--text-dark);
-      }
-      .container {
-        display: flex;
-        min-height: 100vh;
-        background: white;
-      }
-      .main-content {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-      }
-      .header {
-        background: white;
-        padding: 1.5rem 2rem;
-        border-bottom: 1px solid var(--accent);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-      }
-      .search-bar {
-        flex: 1;
-        max-width: 500px;
-        position: relative;
-      }
-      .search-input {
-        width: 100%;
-        padding: 0.75rem 1rem 0.75rem 3rem;
-        border: 2px solid var(--accent);
-        border-radius: 25px;
-        font-size: 1rem;
-        outline: none;
-        transition: all 0.3s ease;
-      }
-      .search-input:focus {
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(11, 154, 122, 0.1);
-      }
-      .search-icon {
-        position: absolute;
-        left: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--text-light);
-      }
-      .user-profile {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-      }
-      .notification-btn {
-        position: relative;
-        padding: 0.5rem;
-        border: none;
-        background: none;
-        cursor: pointer;
-        border-radius: 50%;
-        transition: background 0.3s ease;
-      }
-      .notification-btn:hover {
-        background: var(--secondary);
-      }
-      .notification-badge {
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 8px;
-        height: 8px;
-        background: #e74c3c;
-        border-radius: 50%;
-      }
-      .user-avatar {
-        width: 40px;
-        height: 40px;
-        background: linear-gradient(45deg, var(--primary), var(--primary-dark));
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: 600;
-      }
-      .content-area {
-        flex: 1;
-        padding: 2rem;
-        overflow-y: auto;
-      }
-      .welcome-section {
-        background: linear-gradient(
-          135deg,
-          var(--primary) 0%,
-          var(--primary-dark) 100%
-        );
-        color: white;
-        padding: 3rem;
-        border-radius: 20px;
-        margin-bottom: 2rem;
-        text-align: center;
-      }
-      .welcome-section h2 {
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
-        font-weight: 700;
-      }
-      .welcome-section p {
-        font-size: 1.2rem;
-        opacity: 0.9;
-      }
-      .filters {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 2rem;
-        flex-wrap: wrap;
-      }
-      .filter-btn {
-        padding: 0.75rem 1.5rem;
-        border: 2px solid var(--accent);
-        background: white;
-        border-radius: 25px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        font-weight: 500;
-        color: var(--text-dark);
-      }
-      .filter-btn:hover,
-      .filter-btn.active {
-        background: var(--primary);
-        color: white;
-        border-color: var(--primary);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(11, 154, 122, 0.3);
-      }
-      .providers-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-        gap: 1.5rem;
-      }
-      .provider-card {
-        background: white;
-        border-radius: 15px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-        cursor: pointer;
-        border: 2px solid transparent;
-      }
-      .provider-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-        border-color: var(--primary);
-      }
-      .provider-header {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 1rem;
-      }
-      .provider-image {
-        width: 60px;
-        height: 60px;
-        background: linear-gradient(45deg, var(--primary), var(--primary-dark));
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 1.5rem;
-        font-weight: 600;
-      }
-      .provider-info h3 {
-        font-size: 1.2rem;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        color: var(--text-dark);
-      }
-      .provider-specialty {
-        color: var(--text-light);
-        font-size: 0.9rem;
-        margin-bottom: 0.5rem;
-      }
-      .provider-rating {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-      .stars {
-        color: #f39c12;
-      }
-    </style>
+    <link rel="stylesheet" href="/src/styles/pacientDashboard.css" />
   </head>
   <body>
     <div class="container">
@@ -242,12 +42,8 @@ import "@fontsource/inter";
               <p>Contate clínicas e Médicos profissionais em sua área</p>
             </div>
 
-            <div class="filters">
+            <div class="filters" id="filtersContainer">
               <button class="filter-btn active" data-filter="all">Todos</button>
-              <button class="filter-btn" data-filter="general">Clínica Geral</button>
-              <button class="filter-btn" data-filter="ofta">Oftalmologista</button>
-              <button class="filter-btn" data-filter="denti">Dentista</button>
-              <button class="filter-btn" data-filter="psiqui">Psiquiatra</button>
             </div>
 
             <div class="providers-grid" id="providersGrid">
@@ -259,7 +55,7 @@ import "@fontsource/inter";
     </div>
 
     <script>
-      import { createIcons } from "lucide";
+      import { createIcons, icons } from "lucide";
 
       document.addEventListener("DOMContentLoaded", async () => {
         const userId = localStorage.getItem("usuario_id");
@@ -270,87 +66,111 @@ import "@fontsource/inter";
 
         const userAvatar = document.querySelector(".user-avatar");
         const welcomeSectionH2 = document.querySelector(".welcome-section h2");
+        const searchInput = document.querySelector(".search-input") as HTMLInputElement;
+        const providersGrid = document.getElementById("providersGrid");
+        const filtersContainer = document.getElementById("filtersContainer");
 
-        // Fetch patient data to get the name
-        try {
-          const pacientesRes = await fetch("https://medfinder-fastapi.azurewebsites.net/pacientes");
-          const pacientes: { UsuarioID: number; Nome: string }[] = await pacientesRes.json();
-          const paciente = pacientes.find((p) => p.UsuarioID == parseInt(userId));
-          
-          if (paciente && paciente.Nome) {
-            if (userAvatar) {
-              userAvatar.textContent = paciente.Nome.split(" ")
-                .map((n: string) => n[0])
-                .join("")
-                .substring(0, 2)
-                .toUpperCase();
+        let allMedicos: { id: number; nome: string; especialidade: string }[] = [];
+
+        async function fetchPatientData() {
+          try {
+            const pacienteRes = await fetch(`https://medfinder-fastapi.azurewebsites.net/pacientes/${userId}`);
+            if (!pacienteRes.ok) throw new Error('Falha ao buscar dados do paciente.');
+            const paciente = await pacienteRes.json();
+            if (paciente && paciente.nome) {
+              const initials = paciente.nome.split(" ").map((n: string) => n[0]).join("").substring(0, 2).toUpperCase();
+              if (userAvatar) userAvatar.textContent = initials;
+              if (welcomeSectionH2) welcomeSectionH2.textContent = `Bem-vindo, ${paciente.nome.split(" ")[0]}`;
             }
-            if (welcomeSectionH2) {
-              welcomeSectionH2.textContent = `Bem-vindo, ${paciente.Nome.split(" ")[0]}`;
-            }
+          } catch (err) {
+            console.error("Erro ao buscar dados do paciente:", err);
           }
-        } catch (err) {
-          console.error("Erro ao buscar dados do paciente:", err);
         }
 
-        // Fetch doctors data
-        try {
-          const medicosRes = await fetch("https://medfinder-fastapi.azurewebsites.net/medicos");
-          const medicos: { id: number; nome: string; especialidade: string }[] = await medicosRes.json();
-          const container = document.getElementById("providersGrid");
-
-          if (container) {
-            container.innerHTML = "";
-            if (!Array.isArray(medicos) || medicos.length === 0) {
-              container.innerHTML = "<p>Nenhum médico encontrado.</p>";
-              return;
-            }
-            medicos.forEach((medico) => {
-              if (!medico.nome) return;
-
-              const initials = medico.nome.split(" ")
-                .map((n: string) => n[0])
-                .join("")
-                .substring(0, 2)
-                .toUpperCase();
-
-              const card = document.createElement("div");
-              card.className = "provider-card";
-              card.innerHTML = `
-                <div class="provider-header">
-                  <div class="provider-image">${initials}</div>
-                  <div class="provider-info">
-                    <h3>${medico.nome}</h3>
-                    <div class="provider-specialty">${medico.especialidade || 'Sem especialidade'}</div>
-                    <div class="provider-rating">
-                      <div class="stars">★★★★★</div>
-                      <span>5.0 (0 reviews)</span>
-                    </div>
+        function renderProviders(medicos: { id: number; nome: string; especialidade: string }[]) {
+          if (!providersGrid) return;
+          providersGrid.innerHTML = "";
+          if (!Array.isArray(medicos) || medicos.length === 0) {
+            providersGrid.innerHTML = "<p>Nenhum médico encontrado com os critérios selecionados.</p>";
+            return;
+          }
+          medicos.forEach((medico) => {
+            if (!medico.nome) return;
+            const initials = medico.nome.split(" ").map((n: string) => n[0]).join("").substring(0, 2).toUpperCase();
+            const card = document.createElement("div");
+            card.className = "provider-card";
+            card.dataset.specialty = medico.especialidade.toLowerCase();
+            card.innerHTML = `
+              <div class="provider-header">
+                <div class="provider-image">${initials}</div>
+                <div class="provider-info">
+                  <h3>${medico.nome}</h3>
+                  <div class="provider-specialty">${medico.especialidade || 'Sem especialidade'}</div>
+                  <div class="provider-rating">
+                    <div class="stars">★★★★★</div>
+                    <span>5.0 (0 reviews)</span>
                   </div>
                 </div>
-              `;
-              card.onclick = () => {
-                // The ID to navigate should be the Medico.id
-                location.href = `/pacientDashboard/medic/${medico.id}`;
-              };
+              </div>
+            `;
+            card.onclick = () => location.href = `/pacientDashboard/medic/${medico.id}`;
+            providersGrid.appendChild(card);
+          });
+          createIcons({ icons });
+        }
 
-              container.appendChild(card);
+        function setupFilters() {
+            if (!filtersContainer) return;
+            const specialties = [...new Set(allMedicos.map(m => m.especialidade).filter(Boolean))];
+            specialties.forEach(specialty => {
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn';
+                btn.dataset.filter = specialty.toLowerCase();
+                btn.textContent = specialty;
+                filtersContainer.appendChild(btn);
             });
-          }
-        } catch (err) {
-          console.error("Erro ao buscar médicos:", err);
-          const container = document.getElementById("providersGrid");
-          if(container) container.innerHTML = "<p>Erro ao carregar médicos.</p>";
+
+            filtersContainer.addEventListener('click', (e) => {
+                const target = e.target as HTMLElement;
+                if (target.classList.contains('filter-btn')) {
+                    filtersContainer.querySelector('.active')?.classList.remove('active');
+                    target.classList.add('active');
+                    applyFiltersAndSearch();
+                }
+            });
         }
         
-        createIcons();
-      });
+        function applyFiltersAndSearch() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const activeFilter = document.querySelector('.filters .active')?.getAttribute('data-filter') || 'all';
 
-      function logout() {
-        localStorage.removeItem("usuario_id");
-        localStorage.removeItem("tipo_usuario");
-        window.location.href = "/login";
-      }
+            const filteredMedicos = allMedicos.filter(medico => {
+                const matchesFilter = activeFilter === 'all' || medico.especialidade.toLowerCase() === activeFilter;
+                const matchesSearch = !searchTerm ||
+                                      medico.nome.toLowerCase().includes(searchTerm) ||
+                                      medico.especialidade.toLowerCase().includes(searchTerm);
+                return matchesFilter && matchesSearch;
+            });
+            renderProviders(filteredMedicos);
+        }
+
+        async function fetchAndRenderMedicos() {
+          try {
+            const medicosRes = await fetch("https://medfinder-fastapi.azurewebsites.net/medicos");
+            allMedicos = await medicosRes.json();
+            renderProviders(allMedicos);
+            setupFilters();
+          } catch (err) {
+            console.error("Erro ao buscar médicos:", err);
+            if (providersGrid) providersGrid.innerHTML = "<p>Erro ao carregar médicos.</p>";
+          }
+        }
+
+        await fetchPatientData();
+        await fetchAndRenderMedicos();
+
+        searchInput.addEventListener('input', applyFiltersAndSearch);
+      });
     </script>
   </body>
 </html>

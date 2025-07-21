@@ -1,70 +1,130 @@
 ---
-// src/pages/dashboard/configuracao.astro
 import DashboardLayout from '../../layouts/MedicDashboardLayout.astro';
 ---
 
 <DashboardLayout>
-  <h2>Configuração</h2>
-
-  <div class="settings-container">
-    <div class="settings-sidebar">
-      <ul class="settings-menu">
-        <li class="active">Perfil da Clínica</li>
-        <li>Horários de Funcionamento</li>
-        <li>Usuários e Permissões</li>
-        <li>Notificações</li>
-        <li>Integrações</li>
-        <li>Customização</li>
-      </ul>
+  <div class="profile-container">
+    <div class="profile-header">
+      <div class="profile-avatar" id="profileAvatar">--</div>
+      <div class="profile-info">
+        <h2 id="profileName">Carregando...</h2>
+        <div class="email" id="profileEmail"></div>
+      </div>
     </div>
-
-    <div class="settings-content">
-      <div class="settings-section">
-        <h3>Perfil da Clínica</h3>
-        
-        <form class="settings-form">
-          <div class="form-group">
-            <label for="clinicName">Nome da Clínica</label>
-            <input type="text" id="clinicName" value="Clínica Exemplo" />
-          </div>
-          
-          <div class="form-group">
-            <label for="cnpj">CNPJ</label>
-            <input type="text" id="cnpj" value="12.345.678/0001-90" />
-          </div>
-          
+    <div class="profile-sections">
+      <div class="profile-section">
+        <div class="section-header">
+          <div class="section-title">Informações Pessoais e Profissionais</div>
+        </div>
+        <form id="personal-form">
           <div class="form-row">
             <div class="form-group">
-              <label for="phone">Telefone</label>
-              <input type="text" id="phone" value="(11) 3456-7890" />
+              <label for="name">Nome Completo</label>
+              <input type="text" id="name" class="form-input" disabled />
             </div>
-            
             <div class="form-group">
-              <label for="email">E-mail</label>
-              <input type="email" id="email" value="contato@clinicaexemplo.com.br" />
+              <label for="email-input">Email</label>
+              <input type="email" id="email-input" class="form-input" disabled />
             </div>
           </div>
-          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="crm">CRM</label>
+              <input type="text" id="crm" class="form-input" disabled />
+            </div>
+            <div class="form-group">
+              <label for="specialty">Especialidade</label>
+              <input type="text" id="specialty" class="form-input" disabled />
+            </div>
+          </div>
           <div class="form-group">
             <label for="address">Endereço</label>
-            <input type="text" id="address" value="Av. Paulista, 1000 - Bela Vista" />
+            <input type="text" id="address" class="form-input" disabled />
           </div>
-          
           <div class="form-row">
             <div class="form-group">
               <label for="city">Cidade</label>
-              <input type="text" id="city" value="São Paulo" />
+              <input type="text" id="city" class="form-input" disabled />
             </div>
-            
             <div class="form-group">
-              <label for="state">Estado</label>
-              <select id="state">
-                <option value="SP" selected>São Paulo</option>
-                <option value="RJ">Rio de Janeiro</option>
-                <option value="MG">Minas Gerais</option>
-                <!-- Outros estados -->
-              </select>
+              <label for="cep">CEP</label>
+              <input type="text" id="cep" class="form-input" disabled />
             </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .profile-container{max-width:1000px;margin:0 auto}.profile-header{background:white;border-radius:20px;padding:2rem;margin-bottom:2rem;box-shadow:0 4px 20px rgba(0,0,0,.05);display:flex;align-items:center;gap:2rem}.profile-avatar{width:120px;height:120px;background:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:3rem;font-weight:700;flex-shrink:0}.profile-info h2{font-size:2rem;font-weight:700;margin-bottom:.5rem}.profile-info .email{color:var(--text-light);font-size:1.1rem}.profile-section{background:white;border-radius:15px;padding:2rem;box-shadow:0 4px 20px rgba(0,0,0,.05);margin-bottom:2rem}.section-header{display:flex;justify-content:space-between;margin-bottom:1.5rem;border-bottom:1px solid var(--accent);padding-bottom:1rem}.section-title{font-size:1.3rem;font-weight:600}.form-group{margin-bottom:1.5rem}.form-group label{display:block;margin-bottom:.5rem;font-weight:500}.form-input{width:100%;padding:.75rem 1rem;border:1px solid #e2e8f0;border-radius:8px;font-size:1rem}.form-input:disabled{background:var(--secondary);cursor:not-allowed}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+  </style>
+</DashboardLayout>
+
+<script>
+  document.addEventListener("DOMContentLoaded", async () => {
+    const userId = localStorage.getItem("usuario_id");
+    if (!userId) {
+      window.location.href = "/login";
+      return;
+    }
+
+    const API_BASE_URL = "https://medfinder-fastapi.azurewebsites.net";
+
+    // --- DOM Elements ---
+    const profileAvatar = document.getElementById('profileAvatar');
+    const profileName = document.getElementById('profileName');
+    const profileEmail = document.getElementById('profileEmail');
+    const nameInput = document.getElementById('name') as HTMLInputElement;
+    const emailInput = document.getElementById('email-input') as HTMLInputElement;
+    const crmInput = document.getElementById('crm') as HTMLInputElement;
+    const specialtyInput = document.getElementById('specialty') as HTMLInputElement;
+    const addressInput = document.getElementById('address') as HTMLInputElement;
+    const cityInput = document.getElementById('city') as HTMLInputElement;
+    const cepInput = document.getElementById('cep') as HTMLInputElement;
+
+    async function loadUserProfile() {
+        try {
+            const [medicoRes, usuariosRes] = await Promise.all([
+                fetch(`${API_BASE_URL}/medicos/${userId}`),
+                fetch(`${API_BASE_URL}/usuarios`)
+            ]);
+
+            if (!medicoRes.ok) {
+                throw new Error('Falha ao buscar dados do médico.');
+            }
+
+            const medico = await medicoRes.json();
+            const usuarios = await usuariosRes.json();
             
-            <div class="form-group">
-              <label for="zipcode">CEP</label>
+            const usuario = usuarios.find((u: any) => u.ID == userId);
+
+            if (!medico || !usuario) {
+                alert("Não foi possível carregar os dados do perfil.");
+                return;
+            }
+
+            const initials = (medico.nome.split(" ").map((n: string) => n[0]).join("").substring(0, 2)).toUpperCase();
+
+            // Populate UI
+            if(profileAvatar) profileAvatar.textContent = initials;
+            if(profileName) profileName.textContent = medico.nome;
+            if(profileEmail) profileEmail.textContent = usuario.Email;
+            
+            if(nameInput) nameInput.value = medico.nome;
+            if(emailInput) emailInput.value = usuario.Email;
+            if(crmInput) crmInput.value = medico.crm;
+            if(specialtyInput) specialtyInput.value = medico.especialidade;
+            if(addressInput) addressInput.value = medico.logradouro;
+            if(cityInput) cityInput.value = medico.cidade;
+            if(cepInput) cepInput.value = medico.cep;
+
+        } catch (error) {
+            console.error("Erro ao carregar perfil:", error);
+            alert("Ocorreu um erro ao carregar seu perfil.");
+        }
+    }
+
+    await loadUserProfile();
+  });
+</script>

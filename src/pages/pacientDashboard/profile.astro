@@ -10,7 +10,6 @@ import Sidebar from "../../components/Sidebar.astro";
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MedFinder - Meu Perfil</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/umd/lucide.js"></script>
     <style>
       :root {
         --primary: #0B9A7A;
@@ -36,6 +35,7 @@ import Sidebar from "../../components/Sidebar.astro";
         flex: 1;
         display: flex;
         flex-direction: column;
+        margin-left: 280px; /* To accommodate fixed sidebar */
       }
       .header {
         background: white;
@@ -230,7 +230,7 @@ import Sidebar from "../../components/Sidebar.astro";
     </div>
 
     <script>
-      declare const lucide: any;
+      import { createIcons, icons } from "lucide";
 
       document.addEventListener("DOMContentLoaded", async () => {
         const userId = localStorage.getItem("usuario_id");
@@ -254,14 +254,18 @@ import Sidebar from "../../components/Sidebar.astro";
 
         async function loadUserProfile() {
             try {
-                const [pacientesRes, usuariosRes] = await Promise.all([
-                    fetch(`${API_BASE_URL}/pacientes`),
+                const [pacienteRes, usuariosRes] = await Promise.all([
+                    fetch(`${API_BASE_URL}/pacientes/${userId}`),
                     fetch(`${API_BASE_URL}/usuarios`)
                 ]);
-                const pacientes = await pacientesRes.json();
-                const usuarios = await usuariosRes.json();
 
-                const paciente = pacientes.find((p: any) => p.UsuarioID == userId);
+                if (!pacienteRes.ok) {
+                    throw new Error('Falha ao buscar dados do paciente.');
+                }
+
+                const paciente = await pacienteRes.json();
+                const usuarios = await usuariosRes.json();
+                
                 const usuario = usuarios.find((u: any) => u.ID == userId);
 
                 if (!paciente || !usuario) {
@@ -269,20 +273,20 @@ import Sidebar from "../../components/Sidebar.astro";
                     return;
                 }
 
-                const [firstName, ...lastNameParts] = paciente.Nome.split(" ");
+                const [firstName, ...lastNameParts] = paciente.nome.split(" ");
                 const lastName = lastNameParts.join(" ");
                 const initials = ((firstName?.[0] || '') + (lastName?.[0] || '')).toUpperCase();
 
                 // Populate UI
                 if(headerAvatar) headerAvatar.textContent = initials;
                 if(profileAvatar) profileAvatar.textContent = initials;
-                if(profileName) profileName.textContent = paciente.Nome;
+                if(profileName) profileName.textContent = paciente.nome;
                 if(profileEmail) profileEmail.textContent = usuario.Email;
                 if(firstNameInput) firstNameInput.value = firstName;
                 if(lastNameInput) lastNameInput.value = lastName;
                 if(emailInput) emailInput.value = usuario.Email;
-                if(birthDateInput) birthDateInput.value = new Date(paciente.DataNascimento).toISOString().split('T')[0];
-                if(cpfInput) cpfInput.value = paciente.CPF;
+                if(birthDateInput) birthDateInput.value = new Date(paciente.data_nascimento).toISOString().split('T')[0];
+                if(cpfInput) cpfInput.value = paciente.cpf;
 
             } catch (error) {
                 console.error("Erro ao carregar perfil:", error);
@@ -316,7 +320,7 @@ import Sidebar from "../../components/Sidebar.astro";
         });
 
         await loadUserProfile();
-        lucide.replace();
+        createIcons({ icons });
       });
     </script>
   </body>

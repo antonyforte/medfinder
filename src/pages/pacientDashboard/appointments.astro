@@ -472,7 +472,13 @@ const userProfile = { initials: "JD" };
     </div>
 
     <script>
-      import { createIcons } from "lucide";
+      import { createIcons, icons } from "lucide";
+
+      declare global {
+        interface Window {
+          cancelAppointment: (agendaId: number) => Promise<void>;
+        }
+      }
 
       document.addEventListener("DOMContentLoaded", async () => {
         const userId = localStorage.getItem("usuario_id");
@@ -558,10 +564,7 @@ const userProfile = { initials: "JD" };
               </div>
               ${status !== 'completed' && status !== 'cancelled' ? `
               <div class="appointment-actions">
-                <button class="action-btn primary" onclick="alert('Função não implementada')">
-                  <i data-lucide="calendar"></i> Reagendar
-                </button>
-                <button class="action-btn danger" onclick="alert('Função não implementada')">
+                <button class="action-btn danger" onclick="cancelAppointment(${agenda.id})">
                   <i data-lucide="x"></i> Cancelar
                 </button>
               </div>` : ''}
@@ -577,7 +580,7 @@ const userProfile = { initials: "JD" };
             <p>Tente novamente mais tarde.</p>
           </div>`;
         } finally {
-          createIcons();
+          createIcons({ icons });
         }
 
         // Filter Logic
@@ -600,11 +603,29 @@ const userProfile = { initials: "JD" };
         });
       });
 
-      // Placeholder functions for actions
-      function rescheduleAppointment(id: number) { alert(`Reschedule ${id}`); }
-      function cancelAppointment(id: number) { alert(`Cancel ${id}`); }
-      function viewDetails(id: number) { alert(`Details ${id}`); }
-      function confirmAppointment(id: number) { alert(`Confirm ${id}`); }
+      window.cancelAppointment = async function(agendaId: number) {
+        if (!confirm("Tem certeza que deseja cancelar este agendamento?")) {
+          return;
+        }
+
+        try {
+          const response = await fetch(`https://medfinder-fastapi.azurewebsites.net/agendas/${agendaId}`, {
+            method: 'DELETE',
+          });
+
+          if (response.ok) {
+            alert("Agendamento cancelado com sucesso!");
+            location.reload();
+          } else {
+            const errorData = await response.json();
+            console.error('Failed to cancel appointment:', errorData.detail);
+            alert(`Erro ao cancelar agendamento: ${errorData.detail}`);
+          }
+        } catch (error) {
+          console.error('Error cancelling appointment:', error);
+          alert('Ocorreu um erro de rede. Tente novamente.');
+        }
+      }
     </script>
   </body>
 </html>
