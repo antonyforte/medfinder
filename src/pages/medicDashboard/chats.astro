@@ -1,569 +1,192 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MedFinder – Chat</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/umd/lucide.js"></script>
+    <title>MedFinder – Conversas</title>
+    <script type="module">
+      import { createIcons, icons } from 'lucide';
+      document.addEventListener('DOMContentLoaded', () => createIcons({ icons }));
+    </script>
     <style>
       :root {
         --primary: #0B9A7A;
-        --primary-dark: #097F66;
-        --secondary: #F5F9F8;
-        --text-dark: #16403C;
-        --text-light: #6A8784;
-        --accent: #E6F5F2;
-        --sidebar-bg: #1a1a2e;
-        --sidebar-hover: #16213e;
+        --primary-dark: #0A8A6E;
+        --accent: #E91E63;
+        --text-dark: #1F2937;
+        --text-light: #F3F4F6;
+        --background: #F9FAFB;
+        --spacing-xs: 0.5rem;
+        --spacing-sm: 1rem;
+        --spacing-md: 1.5rem;
+        --spacing-lg: 2rem;
+        --radius: 8px;
       }
-      
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
+      * { margin: 0; padding: 0; box-sizing: border-box; }
       body {
         font-family: 'Inter', sans-serif;
-        background-color: var(--secondary);
+        background: var(--background);
         color: var(--text-dark);
-        display: flex;
-        min-height: 100vh;
+        display: flex; min-height: 100vh;
       }
-
-      /* Sidebar Styles */
+      /* Sidebar: adapted from MedicDashboardLayout */
       .sidebar {
-        width: 250px;
-        background: var(--sidebar-bg);
-        color: white;
+        width: 280px;
+        background: linear-gradient(180deg, var(--text-dark) 0%, var(--primary-dark) 100%);
+        padding: 2rem 0;
         display: flex;
         flex-direction: column;
         position: fixed;
-        height: 100vh;
-        left: 0;
-        top: 0;
+        top: 0; left: 0; bottom: 0;
+        overflow-y: auto;
         z-index: 1000;
       }
-
-      .sidebar-header {
-        padding: 1.5rem;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-      }
-
       .logo {
-        font-size: 1.5rem;
+        padding: 0 2rem;
+        margin-bottom: 3rem;
+      }
+      .logo h1 {
+        color: white;
+        font-size: 1.8rem;
         font-weight: 700;
-        color: var(--primary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
       }
-
-      .sidebar-nav {
+      .logo .icon {
+        width: 32px; height: 32px;
+        background: linear-gradient(45deg, var(--primary), var(--accent));
+        border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+      }
+      .nav-menu {
         flex: 1;
-        padding: 1rem 0;
+        padding: 0 1rem;
       }
-
       .nav-item {
-        display: flex;
-        align-items: center;
-        padding: 0.875rem 1.5rem;
-        color: rgba(255,255,255,0.8);
-        text-decoration: none;
-        transition: all 0.2s ease;
-        border: none;
-        background: none;
-        width: 100%;
-        cursor: pointer;
-        font-size: 0.95rem;
+        display: flex; align-items: center; gap: 1rem;
+        padding: 1rem 1.5rem; margin: 0.5rem 0;
+        color: var(--text-light);
+        cursor: pointer; border-radius: 12px;
+        transition: all 0.3s ease; text-decoration: none;
       }
-
       .nav-item:hover {
-        background: var(--sidebar-hover);
+        background: rgba(255, 255, 255, 0.1);
         color: white;
+        transform: translateX(5px);
       }
-
       .nav-item.active {
-        background: var(--primary);
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
         color: white;
+        box-shadow: 0 4px 15px rgba(11, 154, 122, 0.3);
+        cursor: default;
       }
-
-      .nav-item i {
-        width: 20px;
-        height: 20px;
-        margin-right: 0.75rem;
+      .logout-section {
+        padding: 0 1rem; border-top: 1px solid rgba(255,255,255,0.1);
+        padding-top: 1rem;
       }
-
-      .sidebar-footer {
-        padding: 1rem;
-        border-top: 1px solid rgba(255,255,255,0.1);
-      }
-
-      .user-info {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.75rem;
-        background: rgba(255,255,255,0.05);
-        border-radius: 8px;
-      }
-
-      .user-avatar {
-        width: 36px;
-        height: 36px;
-        background: var(--primary);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 600;
-        font-size: 0.9rem;
-      }
-
-      .user-details h4 {
-        font-size: 0.9rem;
-        font-weight: 500;
-      }
-
-      .user-details p {
-        font-size: 0.8rem;
-        color: rgba(255,255,255,0.6);
-      }
-
+      .logout-section .nav-item { gap: 0.5rem; }
       /* Main Content */
-      .main-content {
-        margin-left: 250px;
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-      }
+       /* Main Content */
+       .main-content { flex: 1; margin-left: 280px; display: flex; flex-direction: column; background: var(--background); }
+      .chat-container { display: flex; flex: 1; gap: var(--spacing-md); padding: var(--spacing-md); overflow: hidden; }
 
-      .chat-container {
-        display: flex;
-        flex-grow: 1;
-        overflow: hidden;
-      }
+      /* Chat List */
+      .chat-sidebar { width: 300px; background: #fff; border-radius: var(--radius); box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
+      .chat-header { padding: var(--spacing-md); border-bottom: 1px solid #E6E6E6; display: flex; justify-content: space-between; align-items: center; }
+      .chat-header h3 { font-size: 1.25rem; font-weight: 700; }
+      .new-chat-btn { background: var(--primary); color: #fff; border: none; border-radius: var(--radius); padding: var(--spacing-xs) var(--spacing-sm); cursor: pointer; font-size: 0.9rem; }
+      .new-chat-btn:hover { background: var(--primary-dark); }
+      .search-bar { padding: var(--spacing-sm) var(--spacing-md); border-bottom: 1px solid #E6E6E6; }
+      .search-input { width: 100%; padding: var(--spacing-xs) var(--spacing-sm); border: 1px solid #E6E6E6; border-radius: var(--radius); font-size: 0.9rem; }
+      .search-input:focus { border-color: var(--primary); outline: none; }
+      .chat-list { flex: 1; overflow-y: auto; }
+      .chat-item { padding: var(--spacing-sm) var(--spacing-md); border-bottom: 1px solid #E6E6E6; cursor: pointer; display: flex; flex-direction: column; gap: var(--spacing-xs); transition: background 0.2s; }
+      .chat-item:hover { background: #F5F5F5; }
+      .chat-item.active { background: var(--primary); color: #fff; }
+      .chat-item-header { display: flex; justify-content: space-between; align-items: center; }
+      .chat-item-name { font-weight: 600; font-size: 1rem; }
+      .chat-item-time { font-size: 0.75rem; color: #6B7280; }
+      .chat-item-preview { font-size: 0.85rem; color: #6B7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-      .chat-sidebar {
-        width: 320px;
-        border-right: 1px solid var(--accent);
-        display: flex;
-        flex-direction: column;
-        background: white;
-      }
-
-      .chat-header {
-        padding: 1.5rem;
-        border-bottom: 1px solid var(--accent);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .chat-header h3 {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--text-dark);
-      }
-
-      .new-chat-btn {
-        background: var(--primary);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 0.5rem 1rem;
-        font-size: 0.85rem;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: background 0.2s ease;
-      }
-
-      .new-chat-btn:hover {
-        background: var(--primary-dark);
-      }
-
-      .search-bar {
-        padding: 1rem 1.5rem;
-        border-bottom: 1px solid var(--accent);
-      }
-
-      .search-input {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid var(--accent);
-        border-radius: 8px;
-        outline: none;
-        font-size: 0.9rem;
-      }
-
-      .search-input:focus {
-        border-color: var(--primary);
-      }
-
-      .chat-list {
-        overflow-y: auto;
-        flex-grow: 1;
-      }
-
-      .chat-item {
-        padding: 1rem 1.5rem;
-        border-bottom: 1px solid var(--accent);
-        cursor: pointer;
-        transition: background 0.2s ease;
-        position: relative;
-      }
-
-      .chat-item:hover {
-        background: var(--accent);
-      }
-
-      .chat-item.active {
-        background: var(--primary);
-        color: white;
-      }
-
-      .chat-item.active .chat-item-name,
-      .chat-item.active .chat-item-time,
-      .chat-item.active .chat-item-preview {
-        color: white;
-      }
-
-      .chat-item-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.5rem;
-      }
-
-      .chat-item-name {
-        font-weight: 600;
-        font-size: 0.95rem;
-      }
-
-      .chat-item-time {
-        font-size: 0.8rem;
-        color: var(--text-light);
-      }
-
-      .chat-item-preview {
-        color: var(--text-light);
-        font-size: 0.85rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .chat-main {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        background: white;
-      }
-
-      .chat-main-header {
-        padding: 1.5rem;
-        border-bottom: 1px solid var(--accent);
-        font-weight: 600;
-        font-size: 1.1rem;
-        background: white;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-      }
-
-      .chat-avatar {
-        width: 40px;
-        height: 40px;
-        background: var(--primary);
-        color: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 600;
-      }
-
-      .chat-messages {
-        flex: 1;
-        padding: 1.5rem;
-        overflow-y: auto;
-        background: var(--secondary);
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-      }
-
-      .message {
-        display: flex;
-        max-width: 70%;
-        align-items: flex-end;
-        gap: 0.5rem;
-      }
-
-      .message.sent {
-        margin-left: auto;
-        flex-direction: row-reverse;
-      }
-
-      .message-content {
-        padding: 0.875rem 1.25rem;
-        border-radius: 18px;
-        background: white;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        word-wrap: break-word;
-      }
-
-      .message.sent .message-content {
-        background: var(--primary);
-        color: white;
-      }
-
-      .message-time {
-        font-size: 0.75rem;
-        color: var(--text-light);
-        white-space: nowrap;
-      }
-
-      .chat-input-area {
-        padding: 1rem 1.5rem;
-        background: white;
-        border-top: 1px solid var(--accent);
-        display: flex;
-        gap: 1rem;
-        align-items: end;
-      }
-
-      .chat-input {
-        flex: 1;
-        padding: 0.875rem 1.25rem;
-        border: 1px solid var(--accent);
-        border-radius: 25px;
-        outline: none;
-        font-size: 0.95rem;
-        resize: none;
-        min-height: 44px;
-        max-height: 120px;
-      }
-
-      .chat-input:focus {
-        border-color: var(--primary);
-      }
-
-      .send-btn {
-        padding: 0.875rem 1.5rem;
-        background: var(--primary);
-        color: white;
-        border: none;
-        border-radius: 25px;
-        cursor: pointer;
-        font-size: 0.95rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: background 0.2s ease;
-      }
-
-      .send-btn:hover {
-        background: var(--primary-dark);
-      }
-
-      .send-btn:disabled {
-        background: var(--text-light);
-        cursor: not-allowed;
-      }
-
-      .empty-state {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        color: var(--text-light);
-        text-align: center;
-        padding: 2rem;
-      }
-
-      .empty-state i {
-        width: 64px;
-        height: 64px;
-        margin-bottom: 1rem;
-        opacity: 0.5;
-      }
-
-      .loading {
-        padding: 1rem;
-        text-align: center;
-        color: var(--text-light);
-      }
-
-      .error-message {
-        background: #fee;
-        color: #c33;
-        padding: 1rem;
-        border-radius: 8px;
-        margin: 1rem;
-        text-align: center;
-      }
+      /* Chat Main */
+      .chat-main { flex: 1; background: #fff; border-radius: var(--radius); box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
+      .chat-main-header { padding: var(--spacing-md); border-bottom: 1px solid #E6E6E6; display: flex; align-items: center; gap: var(--spacing-sm); }
+      .chat-avatar { width: 40px; height: 40px; background: var(--primary); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+      .chat-messages { flex: 1; padding: var(--spacing-md); background: var(--background); overflow-y: auto; display: flex; flex-direction: column; gap: var(--spacing-sm); }
+      .message { display: flex; max-width: 70%; gap: var(--spacing-xs); align-items: flex-end; }
+      .message.sent { margin-left: auto; flex-direction: row-reverse; }
+      .message-content { padding: var(--spacing-xs) var(--spacing-sm); background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.1); line-height: 1.4; border-radius: 18px 18px 18px 4px; }
+      .message.received .message-content { background: #F1F1F1; border-radius: 18px 18px 4px 18px; }
+      .message.sent .message-content { background: var(--primary); color: #fff; }
+      .message-time { font-size: 0.75rem; color: #6B7280; white-space: nowrap; }
+      .chat-input-area { padding: var(--spacing-sm) var(--spacing-md); border-top: 1px solid #E6E6E6; display: flex; gap: var(--spacing-sm); align-items: flex-end; }
+      .chat-input { flex: 1; padding: var(--spacing-xs) var(--spacing-sm); border: 1px solid #E6E6E6; border-radius: 25px; font-size: 0.95rem; resize: none; line-height: 1.5; min-height: 44px; max-height: 120px; }
+      .chat-input:focus { border-color: var(--primary); outline: none; }
+      .send-btn { padding: var(--spacing-xs) var(--spacing-sm); background: var(--primary); color: #fff; border: none; border-radius: 25px; cursor: pointer; display: flex; align-items: center; gap: var(--spacing-xs); font-size: 0.9rem; }
+      .send-btn:hover { background: var(--primary-dark); }
+      .send-btn:disabled { background: #9CA3AF; cursor: not-allowed; }
+      .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #6B7280; text-align: center; gap: var(--spacing-sm); padding: var(--spacing-md); }
+      .empty-state i { font-size: 2rem; color: var(--primary); }
 
       /* Modal Styles */
-      .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.5);
-        z-index: 2000;
-      }
-
-      .modal-content {
-        background: white;
-        margin: 5% auto;
-        padding: 2rem;
-        border-radius: 12px;
-        max-width: 500px;
-        width: 90%;
-      }
-
-      .modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-      }
-
-      .modal-header h3 {
-        margin: 0;
-        font-size: 1.25rem;
-      }
-
-      .close-btn {
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        cursor: pointer;
-        padding: 0.25rem;
-      }
-
-      .form-group {
-        margin-bottom: 1rem;
-      }
-
-      .form-group label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 500;
-      }
-
-      .form-group select {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid var(--accent);
-        border-radius: 8px;
-        font-size: 0.95rem;
-      }
-
-      .modal-actions {
-        display: flex;
-        gap: 1rem;
-        justify-content: flex-end;
-        margin-top: 1.5rem;
-      }
-
-      .btn-secondary {
-        padding: 0.75rem 1.5rem;
-        background: #f5f5f5;
-        color: var(--text-dark);
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 0.95rem;
-      }
-
-      .btn-primary {
-        padding: 0.75rem 1.5rem;
-        background: var(--primary);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 0.95rem;
-      }
-
-      @media (max-width: 768px) {
-        .sidebar {
-          transform: translateX(-100%);
-          transition: transform 0.3s ease;
-        }
-        
-        .main-content {
-          margin-left: 0;
-        }
-        
-        .chat-sidebar {
-          width: 280px;
-        }
-      }
+      .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 2000; }
+      .modal-content { background: #fff; padding: var(--spacing-md); border-radius: var(--radius); width: 90%; max-width: 400px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+      .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md); }
+      .modal-header h3 { font-size: 1.25rem; }
+      .close-btn { background: transparent; border: none; font-size: 1.5rem; cursor: pointer; }
+      .form-group { margin-bottom: var(--spacing-md); }
+      .form-group label { display: block; margin-bottom: var(--spacing-xs); font-weight: 600; }
+      .form-group select { width: 100%; padding: var(--spacing-xs) var(--spacing-sm); border: 1px solid #E6E6E6; border-radius: var(--radius); }
+      .modal-actions { display: flex; justify-content: flex-end; gap: var(--spacing-sm); }
+      .btn-secondary { background: #E6E6E6; color: var(--text-dark); border: none; padding: var(--spacing-xs) var(--spacing-sm); border-radius: var(--radius); cursor: pointer; }
+      .btn-secondary:hover { background: #D1D1D1; }
+      .btn-primary { background: var(--primary); color: #fff; border: none; padding: var(--spacing-xs) var(--spacing-sm); border-radius: var(--radius); cursor: pointer; }
+      .btn-primary:hover { background: var(--primary-dark); }
     </style>
   </head>
   <body>
     <!-- Sidebar -->
     <div class="sidebar">
-      <div class="sidebar-header">
-        <div class="logo">MedFinder</div>
+      <div class="logo">
+        <h1>
+          <div class="icon"><i data-lucide="heart-pulse"></i></div>
+          MedFinder
+        </h1>
       </div>
-      
-      <nav class="sidebar-nav">
-        <a href="/dashboard" class="nav-item">
-          <i data-lucide="home"></i>
-          Dashboard
+      <nav class="nav-menu">
+        <a href="/medicDashboard" class="nav-item" class:list={[ 'nav-item', { active: Astro.url.pathname === '/medicDashboard' } ]}>
+          <i data-lucide="home"></i><span>Início</span>
         </a>
-        <a href="/dashboard/appointments" class="nav-item">
-          <i data-lucide="calendar"></i>
-          Agendamentos
+        <a href="/medicDashboard/chats" class:list={[ 'nav-item', { active: Astro.url.pathname === '/medicDashboard/chats' } ]}>
+          <i data-lucide="message-circle"></i><span>Conversas</span>
         </a>
-        <a href="/dashboard/chats" class="nav-item active">
-          <i data-lucide="message-circle"></i>
-          Conversas
+        <a href="/medicDashboard/schedule" class:list={[ 'nav-item', { active: Astro.url.pathname === '/medicDashboard/schedule' } ]}>
+          <i data-lucide="calendar"></i><span>Agenda</span>
         </a>
-        <a href="/dashboard/profile" class="nav-item">
-          <i data-lucide="user"></i>
-          Perfil
+        <a href="/medicDashboard/configuration" class:list={[ 'nav-item', { active: Astro.url.pathname === '/medicDashboard/configuration' } ]}>
+          <i data-lucide="settings"></i><span>Configuração</span>
         </a>
       </nav>
-      
-      <div class="sidebar-footer">
-        <div class="user-info">
-          <div class="user-avatar" id="userAvatar">JD</div>
-          <div class="user-details">
-            <h4 id="userName">Usuário</h4>
-            <p id="userType">Carregando...</p>
-          </div>
+      <div class="logout-section">
+        <div class="nav-item" onclick="window.logout()">
+          <i data-lucide="log-out"></i><span>Sair</span>
         </div>
       </div>
     </div>
-
+    <!-- Main Content -->
     <div class="main-content">
       <div class="chat-container">
         <div class="chat-sidebar">
           <div class="chat-header">
             <h3>Conversas</h3>
-            <button class="new-chat-btn" id="newChatBtn">
-              <i data-lucide="plus"></i>
-              Nova
-            </button>
+            <button class="new-chat-btn" id="newChatBtn"><i data-lucide="plus"></i> Nova</button>
           </div>
-          
           <div class="search-bar">
-            <input type="text" class="search-input" placeholder="Buscar conversas..." id="searchInput">
+            <input type="text" id="searchInput" class="search-input" placeholder="Buscar..." />
           </div>
-          
-          <div class="chat-list" id="chatList">
-            <div class="loading">Carregando conversas...</div>
-          </div>
+          <div class="chat-list" id="chatList"><div class="loading">Carregando...</div></div>
         </div>
-        
         <div class="chat-main" id="chatMain">
           <div class="empty-state" id="emptyState">
             <i data-lucide="message-circle"></i>
@@ -581,14 +204,10 @@
           <h3>Nova Conversa</h3>
           <button class="close-btn" id="closeModalBtn">&times;</button>
         </div>
-        
         <div class="form-group">
-          <label id="selectLabel">Selecionar:</label>
-          <select id="userSelect">
-            <option value="">Carregando...</option>
-          </select>
+          <label id="selectLabel" for="userSelect">Selecionar:</label>
+          <select id="userSelect"><option value="">Carregando...</option></select>
         </div>
-        
         <div class="modal-actions">
           <button class="btn-secondary" id="cancelBtn">Cancelar</button>
           <button class="btn-primary" id="createChatBtn">Criar Conversa</button>

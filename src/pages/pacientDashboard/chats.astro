@@ -217,64 +217,445 @@
 
     <script>
       document.addEventListener("DOMContentLoaded", async () => {
-        /* Authentication & API setup */
+        // Verificar autenticação
         const userId = localStorage.getItem("usuario_id");
         const userType = localStorage.getItem("tipo_usuario");
-        if (!userId || !userType) return window.location.href = "/login";
+        
+        if (!userId || !userType) {
+          window.location.href = "/login";
+          return;
+        }
+
+        // Configurações da API
         const API_BASE_URL = "https://medfinder-fastapi.azurewebsites.net";
         const WS_BASE_URL = "wss://medfinder-fastapi.azurewebsites.net";
-
-        /* DOM Elements */
+        
+        // Elementos do DOM
+        const chatListEl = document.getElementById("chatList");
+        const chatMainEl = document.getElementById("chatMain");
+        const emptyStateEl = document.getElementById("emptyState");
         const newChatBtn = document.getElementById("newChatBtn");
         const newChatModal = document.getElementById("newChatModal");
         const closeModalBtn = document.getElementById("closeModalBtn");
         const cancelBtn = document.getElementById("cancelBtn");
         const createChatBtn = document.getElementById("createChatBtn");
         const userSelect = document.getElementById("userSelect");
-        const chatListEl = document.getElementById("chatList");
-        const chatMainEl = document.getElementById("chatMain");
-        const emptyStateEl = document.getElementById("emptyState");
+        const selectLabel = document.getElementById("selectLabel");
         const searchInput = document.getElementById("searchInput");
-        let convs = [], allUsers = [], activeConv = null, socket = null;
 
-        /* Prevent modal on load */
-        newChatModal.style.display = 'none';
+        // Estado da aplicação
+        let conversations = [];
+        let allUsers = [];
+        let activeConversation = null;
+        let socket = null;
+        let chatMessagesEl = null;
+        let messageInputEl = null;
+        let sendBtnEl = null;
 
-        /* Load & render conversations */
-        async function loadConvs(filter = '') {
-          const res = await fetch(`${API_BASE_URL}/usuarios/${userId}/conversas`);
-          convs = await res.json();
-          renderList(filter);
+        // Inicializar sidebar do usuário
+        async function initializeUserInfo() {
+          try {
+            const endpoint = userType === 'paciente' ? 'pacientes' : 'medicos';
+            const response = await fetch(`${API_BASE_URL}/${endpoint}/${userId}`);
+            
+            if (response.ok) {
+              const userData = await response.json();
+              const userName = userData.nome || 'Usuário';
+              const userAvatar = userName.split(' ').map(n => n[0]).join('').toUpperCase();
+              
+              document.getElementById('userName').textContent = userName;
+              document.getElementById('userType').textContent = userType === 'paciente' ? 'Paciente' : 'Médico';
+              document.getElementById('userAvatar').textContent = userAvatar;
+            }
+          } catch (error) {
+            console.error('Erro ao carregar informações do usuário:', error);
+          }
         }
-        function renderList(filter) {
+
+        // Carregar conversas
+        async function loadConversations() {
+          if (!chatListEl) return;
+          
+          try {
+            const response = await fetch(`${API_BASE_URL}/usuarios/${userId}/conversas`);
+            
+            if (!response.ok) {
+              throw new Error('Erro ao carregar conversas');
+            }
+            
+            conversations = await response.json();
+            renderConversations();
+            
+          } catch (error) {
+            console.error('Erro ao carregar conversas:', error);
+            chatListEl.innerHTML = '<div class="error-message">Erro ao carregar conversas</div>';
+          }
+        }
+
+        // Renderizar lista de conversas
+        function renderConversations(filter = '') {
+          if (!chatListEl) return;
+          
+          if (conversations.length === 0) {
+            chatListEl.innerHTML = '<div class="loading">Nenhuma conversa encontrada</div>';
+            return;
+          }
+
+          const filteredConversations = conversations.filter(conv => {
+            const otherUserName = userType === 'paciente' ? conv.MedicoNome : conv.PacienteNome;
+            return otherUserName.toLowerCase().includes(filter.toLowerCase());
+          });
+
           chatListEl.innerHTML = '';
-          (convs.filter(c => ((userType==='paciente'?c.MedicoNome:c.PacienteNome)
-            .toLowerCase().includes(filter.toLowerCase()))).length || [])
-            .forEach(c => {
-              const name = userType==='paciente'?c.MedicoNome:c.PacienteNome;
-              const div = document.createElement('div'); div.className='chat-item';
-              div.innerHTML = `<div class="chat-item-header"><span class="chat-item-name">${name}</span></div>`;
-              div.onclick = ()=>selectConv(c);
-              chatListEl.appendChild(div);
-            });
-          if (!convs.length) chatListEl.innerHTML = '<div class="loading">Nenhuma conversa</div>';
+          
+          filteredConversations.forEach(conv => {
+            const otherUserName = userType === 'paciente' ? conv.MedicoNome : conv.PacienteNome;
+            const otherUserType = userType === 'paciente' ? 'Médico' : 'Paciente';
+            
+            const item = document.createElement('div');
+            item.className = 'chat-item';
+            item.dataset.convoId = conv.ConversaID;
+            
+            item.innerHTML = `
+              <div class="chat-item-header">
+                <span class="chat-item-name">${otherUserName}</span>
+                <span class="chat-item-time">Agora</span>
+              </div>
+              <div class="chat-item-preview">${otherUserType} • Clique para conversar</div>
+            `;
+            
+            item.addEventListener('click', () => selectConversation(conv));
+            chatListEl.appendChild(item);
+          });
         }
 
-        /* Show/hide modal */
-        newChatBtn.onclick = async () => { newChatModal.style.display='flex';
-          const res = await fetch(`${API_BASE_URL}/${userType==='paciente'?'medicos':'pacientes'}`);
-          allUsers = await res.json(); userSelect.innerHTML = '<option value="">Selecione...</option>';
-          allUsers.forEach(u=> userSelect.innerHTML += `<option value="${u.id}">${u.nome}</option>`);
-          document.getElementById('selectLabel').textContent = userType==='paciente'?'Selecionar Médico:':'Selecionar Paciente:';
-        };
-        [closeModalBtn,cancelBtn].forEach(btn=>btn.onclick=()=>newChatModal.style.display='none');
-        createChatBtn.onclick = async () => { /* create logic */ };
-        window.onclick = e=>{ if(e.target===newChatModal) newChatModal.style.display='none'; };
-        searchInput.oninput = e=>renderList(e.target.value);
+        // Selecionar conversa
+        async function selectConversation(conv) {
+          activeConversation = conv;
+          
+          // Atualizar UI
+          document.querySelectorAll('.chat-item').forEach(item => {
+            item.classList.toggle('active', item.dataset.convoId == conv.ConversaID);
+          });
 
-        /* Conversation selection & chat rendering (omitted for brevity) */
+          // Renderizar interface do chat
+          renderChatInterface(conv);
+          
+          // Carregar histórico e conectar WebSocket
+          await loadMessageHistory(conv.ConversaID);
+          connectWebSocket(conv.ConversaID);
+        }
 
-        await loadConvs();
+        // Renderizar interface do chat
+        function renderChatInterface(conv) {
+          const otherUserName = userType === 'paciente' ? conv.MedicoNome : conv.PacienteNome;
+          const otherUserInitials = otherUserName.split(' ').map(n => n[0]).join('').toUpperCase();
+          
+          chatMainEl.innerHTML = `
+            <div class="chat-main-header">
+              <div class="chat-avatar">${otherUserInitials}</div>
+              <div>
+                <div style="font-weight: 600;">${otherUserName}</div>
+                <div style="font-size: 0.8rem; color: var(--text-light);">${userType === 'paciente' ? 'Médico' : 'Paciente'}</div>
+              </div>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+              <div class="loading">Carregando mensagens...</div>
+            </div>
+            
+            <div class="chat-input-area">
+              <textarea class="chat-input" id="messageInput" placeholder="Digite sua mensagem..." rows="1"></textarea>
+              <button class="send-btn" id="sendBtn">
+                <i data-lucide="send"></i>
+                Enviar
+              </button>
+            </div>
+          `;
+
+          // Atualizar referências dos elementos
+          chatMessagesEl = document.getElementById('chatMessages');
+          messageInputEl = document.getElementById('messageInput');
+          sendBtnEl = document.getElementById('sendBtn');
+
+          // Configurar eventos
+          sendBtnEl.addEventListener('click', sendMessage);
+          messageInputEl.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              sendMessage();
+            }
+          });
+
+          // Auto-resize do textarea
+          messageInputEl.addEventListener('input', () => {
+            messageInputEl.style.height = 'auto';
+            messageInputEl.style.height = messageInputEl.scrollHeight + 'px';
+          });
+
+          // Recriar ícones do Lucide
+          if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+          }
+        }
+
+        // Carregar histórico de mensagens
+        async function loadMessageHistory(convoId) {
+          if (!chatMessagesEl) return;
+          
+          try {
+            const response = await fetch(`${API_BASE_URL}/historico/${convoId}`);
+            
+            if (!response.ok) {
+              throw new Error('Erro ao carregar histórico');
+            }
+            
+            const messages = await response.json();
+            chatMessagesEl.innerHTML = '';
+            
+            if (messages.length === 0) {
+              chatMessagesEl.innerHTML = '<div class="loading">Nenhuma mensagem ainda. Seja o primeiro a enviar!</div>';
+              return;
+            }
+            
+            messages.forEach(msg => renderMessage(msg));
+            scrollToBottom();
+            
+          } catch (error) {
+            console.error('Erro ao carregar histórico:', error);
+            chatMessagesEl.innerHTML = '<div class="error-message">Erro ao carregar mensagens</div>';
+          }
+        }
+
+        // Conectar WebSocket
+        function connectWebSocket(convoId) {
+          if (socket) {
+            socket.close();
+          }
+          
+          socket = new WebSocket(`${WS_BASE_URL}/ws/${convoId}/${userId}`);
+          
+          socket.onopen = () => {
+            console.log('WebSocket conectado');
+          };
+          
+          socket.onmessage = (event) => {
+            try {
+              const message = JSON.parse(event.data);
+              
+              if (message.error) {
+                console.error('Erro do WebSocket:', message.error);
+                return;
+              }
+              
+              if (activeConversation && message.conversa_id === activeConversation.ConversaID) {
+                const msgData = {
+                  RemetenteUsuarioID: message.remetente_id,
+                  Texto: message.texto,
+                  DataEnvio: message.data_envio || new Date().toISOString()
+                };
+                renderMessage(msgData);
+                scrollToBottom();
+              }
+            } catch (error) {
+              console.error('Erro ao processar mensagem WebSocket:', error);
+            }
+          };
+          
+          socket.onerror = (error) => {
+            console.error('Erro WebSocket:', error);
+          };
+          
+          socket.onclose = () => {
+            console.log('WebSocket desconectado');
+          };
+        }
+
+        // Renderizar mensagem
+        function renderMessage(msg) {
+          if (!chatMessagesEl) return;
+          
+          const isSent = msg.RemetenteUsuarioID == userId;
+          const msgEl = document.createElement('div');
+          msgEl.className = `message ${isSent ? 'sent' : 'received'}`;
+          
+          const time = msg.DataEnvio ? new Date(msg.DataEnvio).toLocaleTimeString('pt-BR', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          }) : '';
+          
+          msgEl.innerHTML = `
+            <div class="message-content">${msg.Texto}</div>
+            ${time ? `<div class="message-time">${time}</div>` : ''}
+          `;
+          
+          chatMessagesEl.appendChild(msgEl);
+        }
+
+        // Enviar mensagem
+        function sendMessage() {
+          if (!socket || socket.readyState !== WebSocket.OPEN || !activeConversation || !messageInputEl) {
+            return;
+          }
+          
+          const text = messageInputEl.value.trim();
+          if (!text) return;
+
+          const otherUserId = userType === 'paciente' 
+            ? activeConversation.MedicoUsuarioID 
+            : activeConversation.PacienteUsuarioID;
+
+          const payload = {
+            texto: text,
+            destinatario_id: otherUserId
+          };
+          
+          try {
+            socket.send(JSON.stringify(payload));
+            
+            // Renderizar mensagem localmente
+            const msgData = {
+              RemetenteUsuarioID: parseInt(userId),
+              Texto: text,
+              DataEnvio: new Date().toISOString()
+            };
+            renderMessage(msgData);
+            
+            messageInputEl.value = '';
+            messageInputEl.style.height = 'auto';
+            scrollToBottom();
+            
+          } catch (error) {
+            console.error('Erro ao enviar mensagem:', error);
+          }
+        }
+
+        // Scroll para o final das mensagens
+        function scrollToBottom() {
+          if (chatMessagesEl) {
+            chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+          }
+        }
+
+        // Carregar usuários disponíveis
+        async function loadAvailableUsers() {
+          try {
+            const endpoint = userType === 'paciente' ? 'medicos' : 'pacientes';
+            const response = await fetch(`${API_BASE_URL}/${endpoint}`);
+            
+            if (!response.ok) {
+              throw new Error('Erro ao carregar usuários');
+            }
+            
+            allUsers = await response.json();
+            
+            userSelect.innerHTML = '<option value="">Selecione...</option>';
+            allUsers.forEach(user => {
+              const option = document.createElement('option');
+              option.value = user.id;
+              option.textContent = user.nome;
+              userSelect.appendChild(option);
+            });
+            
+            selectLabel.textContent = userType === 'paciente' ? 'Selecionar Médico:' : 'Selecionar Paciente:';
+            
+          } catch (error) {
+            console.error('Erro ao carregar usuários:', error);
+            userSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+          }
+        }
+
+        // Criar nova conversa
+        async function createNewConversation() {
+          const selectedUserId = userSelect.value;
+          if (!selectedUserId) {
+            alert('Por favor, selecione um usuário');
+            return;
+          }
+
+          try {
+            createChatBtn.disabled = true;
+            createChatBtn.textContent = 'Criando...';
+            
+            const response = await fetch(`${API_BASE_URL}/conversas/`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                id_usuario1: parseInt(userId),
+                id_usuario2: parseInt(selectedUserId)
+              })
+            });
+
+            if (!response.ok) {
+              throw new Error('Erro ao criar conversa');
+            }
+
+            const result = await response.json();
+            // Fechar modal e recarregar conversas
+            newChatModal.style.display = 'none';
+            userSelect.value = '';
+            await loadConversations();
+            
+            // Selecionar a nova conversa criada
+            const newConv = conversations.find(c => c.ConversaID === result.conversa_id);
+            if (newConv) {
+              selectConversation(newConv);
+            }
+            
+          } catch (error) {
+            console.error('Erro ao criar conversa:', error);
+            alert('Erro ao criar conversa. Tente novamente.');
+          } finally {
+            createChatBtn.disabled = false;
+            createChatBtn.textContent = 'Criar Conversa';
+          }
+        }
+
+        // Event Listeners
+        newChatBtn?.addEventListener('click', () => {
+          newChatModal.style.display = 'block';
+          loadAvailableUsers();
+        });
+
+        closeModalBtn?.addEventListener('click', () => {
+          newChatModal.style.display = 'none';
+        });
+
+        cancelBtn?.addEventListener('click', () => {
+          newChatModal.style.display = 'none';
+        });
+
+        createChatBtn?.addEventListener('click', createNewConversation);
+
+        // Busca em tempo real
+        searchInput?.addEventListener('input', (e) => {
+          renderConversations(e.target.value);
+        });
+
+        // Fechar modal ao clicar fora
+        newChatModal?.addEventListener('click', (e) => {
+          if (e.target === newChatModal) {
+            newChatModal.style.display = 'none';
+          }
+        });
+
+        // Inicializar aplicação
+        await initializeUserInfo();
+        await loadConversations();
+
+        // Recriar ícones do Lucide
+        if (typeof lucide !== 'undefined') {
+          lucide.createIcons();
+        }
+
+        // Cleanup ao fechar a página
+        window.addEventListener('beforeunload', () => {
+          if (socket) {
+            socket.close();
+          }
+        });
       });
     </script>
   </body>
