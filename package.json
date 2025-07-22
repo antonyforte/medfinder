@@ -4,12 +4,13 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
+    "start": "node dist/server/entry.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/deno": "^5.0.1",
+    "@astrojs/node": "^9.3.0",
     "@auth/core": "^0.37.4",
     "@fontsource/inter": "^5.2.6",
     "@types/google.maps": "^3.58.1",

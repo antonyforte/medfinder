@@ -1,0 +1,5 @@
+# Define o uso do Ambiente Flexível
+env: flex
+
+# Especifica um runtime customizado, o que instrui o App Engine a procurar por um Dockerfile
+runtime: custom
