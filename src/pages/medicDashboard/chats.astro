@@ -1,192 +1,569 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MedFinder – Conversas</title>
-    <script type="module">
-      import { createIcons, icons } from 'lucide';
-      document.addEventListener('DOMContentLoaded', () => createIcons({ icons }));
-    </script>
+    <title>MedFinder – Chat</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/umd/lucide.js"></script>
     <style>
       :root {
         --primary: #0B9A7A;
-        --primary-dark: #0A8A6E;
-        --accent: #E91E63;
-        --text-dark: #1F2937;
-        --text-light: #F3F4F6;
-        --background: #F9FAFB;
-        --spacing-xs: 0.5rem;
-        --spacing-sm: 1rem;
-        --spacing-md: 1.5rem;
-        --spacing-lg: 2rem;
-        --radius: 8px;
+        --primary-dark: #097F66;
+        --secondary: #F5F9F8;
+        --text-dark: #16403C;
+        --text-light: #6A8784;
+        --accent: #E6F5F2;
+        --sidebar-bg: #1a1a2e;
+        --sidebar-hover: #16213e;
       }
-      * { margin: 0; padding: 0; box-sizing: border-box; }
+      
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
       body {
         font-family: 'Inter', sans-serif;
-        background: var(--background);
+        background-color: var(--secondary);
         color: var(--text-dark);
-        display: flex; min-height: 100vh;
+        display: flex;
+        min-height: 100vh;
       }
-      /* Sidebar: adapted from MedicDashboardLayout */
+
+      /* Sidebar Styles */
       .sidebar {
-        width: 280px;
-        background: linear-gradient(180deg, var(--text-dark) 0%, var(--primary-dark) 100%);
-        padding: 2rem 0;
+        width: 250px;
+        background: var(--sidebar-bg);
+        color: white;
         display: flex;
         flex-direction: column;
         position: fixed;
-        top: 0; left: 0; bottom: 0;
-        overflow-y: auto;
+        height: 100vh;
+        left: 0;
+        top: 0;
         z-index: 1000;
       }
-      .logo {
-        padding: 0 2rem;
-        margin-bottom: 3rem;
+
+      .sidebar-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
       }
-      .logo h1 {
-        color: white;
-        font-size: 1.8rem;
+
+      .logo {
+        font-size: 1.5rem;
         font-weight: 700;
+        color: var(--primary);
+      }
+
+      .sidebar-nav {
+        flex: 1;
+        padding: 1rem 0;
+      }
+
+      .nav-item {
+        display: flex;
+        align-items: center;
+        padding: 0.875rem 1.5rem;
+        color: rgba(255,255,255,0.8);
+        text-decoration: none;
+        transition: all 0.2s ease;
+        border: none;
+        background: none;
+        width: 100%;
+        cursor: pointer;
+        font-size: 0.95rem;
+      }
+
+      .nav-item:hover {
+        background: var(--sidebar-hover);
+        color: white;
+      }
+
+      .nav-item.active {
+        background: var(--primary);
+        color: white;
+      }
+
+      .nav-item i {
+        width: 20px;
+        height: 20px;
+        margin-right: 0.75rem;
+      }
+
+      .sidebar-footer {
+        padding: 1rem;
+        border-top: 1px solid rgba(255,255,255,0.1);
+      }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: rgba(255,255,255,0.05);
+        border-radius: 8px;
+      }
+
+      .user-avatar {
+        width: 36px;
+        height: 36px;
+        background: var(--primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+
+      .user-details h4 {
+        font-size: 0.9rem;
+        font-weight: 500;
+      }
+
+      .user-details p {
+        font-size: 0.8rem;
+        color: rgba(255,255,255,0.6);
+      }
+
+      /* Main Content */
+      .main-content {
+        margin-left: 250px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      .chat-container {
+        display: flex;
+        flex-grow: 1;
+        overflow: hidden;
+      }
+
+      .chat-sidebar {
+        width: 320px;
+        border-right: 1px solid var(--accent);
+        display: flex;
+        flex-direction: column;
+        background: white;
+      }
+
+      .chat-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--accent);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .chat-header h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-dark);
+      }
+
+      .new-chat-btn {
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+        cursor: pointer;
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        transition: background 0.2s ease;
       }
-      .logo .icon {
-        width: 32px; height: 32px;
-        background: linear-gradient(45deg, var(--primary), var(--accent));
+
+      .new-chat-btn:hover {
+        background: var(--primary-dark);
+      }
+
+      .search-bar {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--accent);
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--accent);
         border-radius: 8px;
-        display: flex; align-items: center; justify-content: center;
+        outline: none;
+        font-size: 0.9rem;
       }
-      .nav-menu {
-        flex: 1;
-        padding: 0 1rem;
+
+      .search-input:focus {
+        border-color: var(--primary);
       }
-      .nav-item {
-        display: flex; align-items: center; gap: 1rem;
-        padding: 1rem 1.5rem; margin: 0.5rem 0;
+
+      .chat-list {
+        overflow-y: auto;
+        flex-grow: 1;
+      }
+
+      .chat-item {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--accent);
+        cursor: pointer;
+        transition: background 0.2s ease;
+        position: relative;
+      }
+
+      .chat-item:hover {
+        background: var(--accent);
+      }
+
+      .chat-item.active {
+        background: var(--primary);
+        color: white;
+      }
+
+      .chat-item.active .chat-item-name,
+      .chat-item.active .chat-item-time,
+      .chat-item.active .chat-item-preview {
+        color: white;
+      }
+
+      .chat-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+      }
+
+      .chat-item-name {
+        font-weight: 600;
+        font-size: 0.95rem;
+      }
+
+      .chat-item-time {
+        font-size: 0.8rem;
         color: var(--text-light);
-        cursor: pointer; border-radius: 12px;
-        transition: all 0.3s ease; text-decoration: none;
       }
-      .nav-item:hover {
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
-        transform: translateX(5px);
-      }
-      .nav-item.active {
-        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-        color: white;
-        box-shadow: 0 4px 15px rgba(11, 154, 122, 0.3);
-        cursor: default;
-      }
-      .logout-section {
-        padding: 0 1rem; border-top: 1px solid rgba(255,255,255,0.1);
-        padding-top: 1rem;
-      }
-      .logout-section .nav-item { gap: 0.5rem; }
-      /* Main Content */
-       /* Main Content */
-       .main-content { flex: 1; margin-left: 280px; display: flex; flex-direction: column; background: var(--background); }
-      .chat-container { display: flex; flex: 1; gap: var(--spacing-md); padding: var(--spacing-md); overflow: hidden; }
 
-      /* Chat List */
-      .chat-sidebar { width: 300px; background: #fff; border-radius: var(--radius); box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
-      .chat-header { padding: var(--spacing-md); border-bottom: 1px solid #E6E6E6; display: flex; justify-content: space-between; align-items: center; }
-      .chat-header h3 { font-size: 1.25rem; font-weight: 700; }
-      .new-chat-btn { background: var(--primary); color: #fff; border: none; border-radius: var(--radius); padding: var(--spacing-xs) var(--spacing-sm); cursor: pointer; font-size: 0.9rem; }
-      .new-chat-btn:hover { background: var(--primary-dark); }
-      .search-bar { padding: var(--spacing-sm) var(--spacing-md); border-bottom: 1px solid #E6E6E6; }
-      .search-input { width: 100%; padding: var(--spacing-xs) var(--spacing-sm); border: 1px solid #E6E6E6; border-radius: var(--radius); font-size: 0.9rem; }
-      .search-input:focus { border-color: var(--primary); outline: none; }
-      .chat-list { flex: 1; overflow-y: auto; }
-      .chat-item { padding: var(--spacing-sm) var(--spacing-md); border-bottom: 1px solid #E6E6E6; cursor: pointer; display: flex; flex-direction: column; gap: var(--spacing-xs); transition: background 0.2s; }
-      .chat-item:hover { background: #F5F5F5; }
-      .chat-item.active { background: var(--primary); color: #fff; }
-      .chat-item-header { display: flex; justify-content: space-between; align-items: center; }
-      .chat-item-name { font-weight: 600; font-size: 1rem; }
-      .chat-item-time { font-size: 0.75rem; color: #6B7280; }
-      .chat-item-preview { font-size: 0.85rem; color: #6B7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .chat-item-preview {
+        color: var(--text-light);
+        font-size: 0.85rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
 
-      /* Chat Main */
-      .chat-main { flex: 1; background: #fff; border-radius: var(--radius); box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
-      .chat-main-header { padding: var(--spacing-md); border-bottom: 1px solid #E6E6E6; display: flex; align-items: center; gap: var(--spacing-sm); }
-      .chat-avatar { width: 40px; height: 40px; background: var(--primary); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; }
-      .chat-messages { flex: 1; padding: var(--spacing-md); background: var(--background); overflow-y: auto; display: flex; flex-direction: column; gap: var(--spacing-sm); }
-      .message { display: flex; max-width: 70%; gap: var(--spacing-xs); align-items: flex-end; }
-      .message.sent { margin-left: auto; flex-direction: row-reverse; }
-      .message-content { padding: var(--spacing-xs) var(--spacing-sm); background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.1); line-height: 1.4; border-radius: 18px 18px 18px 4px; }
-      .message.received .message-content { background: #F1F1F1; border-radius: 18px 18px 4px 18px; }
-      .message.sent .message-content { background: var(--primary); color: #fff; }
-      .message-time { font-size: 0.75rem; color: #6B7280; white-space: nowrap; }
-      .chat-input-area { padding: var(--spacing-sm) var(--spacing-md); border-top: 1px solid #E6E6E6; display: flex; gap: var(--spacing-sm); align-items: flex-end; }
-      .chat-input { flex: 1; padding: var(--spacing-xs) var(--spacing-sm); border: 1px solid #E6E6E6; border-radius: 25px; font-size: 0.95rem; resize: none; line-height: 1.5; min-height: 44px; max-height: 120px; }
-      .chat-input:focus { border-color: var(--primary); outline: none; }
-      .send-btn { padding: var(--spacing-xs) var(--spacing-sm); background: var(--primary); color: #fff; border: none; border-radius: 25px; cursor: pointer; display: flex; align-items: center; gap: var(--spacing-xs); font-size: 0.9rem; }
-      .send-btn:hover { background: var(--primary-dark); }
-      .send-btn:disabled { background: #9CA3AF; cursor: not-allowed; }
-      .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #6B7280; text-align: center; gap: var(--spacing-sm); padding: var(--spacing-md); }
-      .empty-state i { font-size: 2rem; color: var(--primary); }
+      .chat-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: white;
+      }
+
+      .chat-main-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--accent);
+        font-weight: 600;
+        font-size: 1.1rem;
+        background: white;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .chat-avatar {
+        width: 40px;
+        height: 40px;
+        background: var(--primary);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+      }
+
+      .chat-messages {
+        flex: 1;
+        padding: 1.5rem;
+        overflow-y: auto;
+        background: var(--secondary);
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .message {
+        display: flex;
+        max-width: 70%;
+        align-items: flex-end;
+        gap: 0.5rem;
+      }
+
+      .message.sent {
+        margin-left: auto;
+        flex-direction: row-reverse;
+      }
+
+      .message-content {
+        padding: 0.875rem 1.25rem;
+        border-radius: 18px;
+        background: white;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        word-wrap: break-word;
+      }
+
+      .message.sent .message-content {
+        background: var(--primary);
+        color: white;
+      }
+
+      .message-time {
+        font-size: 0.75rem;
+        color: var(--text-light);
+        white-space: nowrap;
+      }
+
+      .chat-input-area {
+        padding: 1rem 1.5rem;
+        background: white;
+        border-top: 1px solid var(--accent);
+        display: flex;
+        gap: 1rem;
+        align-items: end;
+      }
+
+      .chat-input {
+        flex: 1;
+        padding: 0.875rem 1.25rem;
+        border: 1px solid var(--accent);
+        border-radius: 25px;
+        outline: none;
+        font-size: 0.95rem;
+        resize: none;
+        min-height: 44px;
+        max-height: 120px;
+      }
+
+      .chat-input:focus {
+        border-color: var(--primary);
+      }
+
+      .send-btn {
+        padding: 0.875rem 1.5rem;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: background 0.2s ease;
+      }
+
+      .send-btn:hover {
+        background: var(--primary-dark);
+      }
+
+      .send-btn:disabled {
+        background: var(--text-light);
+        cursor: not-allowed;
+      }
+
+      .empty-state {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-light);
+        text-align: center;
+        padding: 2rem;
+      }
+
+      .empty-state i {
+        width: 64px;
+        height: 64px;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+      }
+
+      .loading {
+        padding: 1rem;
+        text-align: center;
+        color: var(--text-light);
+      }
+
+      .error-message {
+        background: #fee;
+        color: #c33;
+        padding: 1rem;
+        border-radius: 8px;
+        margin: 1rem;
+        text-align: center;
+      }
 
       /* Modal Styles */
-      .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 2000; }
-      .modal-content { background: #fff; padding: var(--spacing-md); border-radius: var(--radius); width: 90%; max-width: 400px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
-      .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md); }
-      .modal-header h3 { font-size: 1.25rem; }
-      .close-btn { background: transparent; border: none; font-size: 1.5rem; cursor: pointer; }
-      .form-group { margin-bottom: var(--spacing-md); }
-      .form-group label { display: block; margin-bottom: var(--spacing-xs); font-weight: 600; }
-      .form-group select { width: 100%; padding: var(--spacing-xs) var(--spacing-sm); border: 1px solid #E6E6E6; border-radius: var(--radius); }
-      .modal-actions { display: flex; justify-content: flex-end; gap: var(--spacing-sm); }
-      .btn-secondary { background: #E6E6E6; color: var(--text-dark); border: none; padding: var(--spacing-xs) var(--spacing-sm); border-radius: var(--radius); cursor: pointer; }
-      .btn-secondary:hover { background: #D1D1D1; }
-      .btn-primary { background: var(--primary); color: #fff; border: none; padding: var(--spacing-xs) var(--spacing-sm); border-radius: var(--radius); cursor: pointer; }
-      .btn-primary:hover { background: var(--primary-dark); }
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 2000;
+      }
+
+      .modal-content {
+        background: white;
+        margin: 5% auto;
+        padding: 2rem;
+        border-radius: 12px;
+        max-width: 500px;
+        width: 90%;
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .modal-header h3 {
+        margin: 0;
+        font-size: 1.25rem;
+      }
+
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0.25rem;
+      }
+
+      .form-group {
+        margin-bottom: 1rem;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+      }
+
+      .form-group select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--accent);
+        border-radius: 8px;
+        font-size: 0.95rem;
+      }
+
+      .modal-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 1.5rem;
+      }
+
+      .btn-secondary {
+        padding: 0.75rem 1.5rem;
+        background: #f5f5f5;
+        color: var(--text-dark);
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.95rem;
+      }
+
+      .btn-primary {
+        padding: 0.75rem 1.5rem;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.95rem;
+      }
+
+      @media (max-width: 768px) {
+        .sidebar {
+          transform: translateX(-100%);
+          transition: transform 0.3s ease;
+        }
+        
+        .main-content {
+          margin-left: 0;
+        }
+        
+        .chat-sidebar {
+          width: 280px;
+        }
+      }
     </style>
   </head>
   <body>
     <!-- Sidebar -->
     <div class="sidebar">
-      <div class="logo">
-        <h1>
-          <div class="icon"><i data-lucide="heart-pulse"></i></div>
-          MedFinder
-        </h1>
+      <div class="sidebar-header">
+        <div class="logo">MedFinder</div>
       </div>
-      <nav class="nav-menu">
-        <a href="/pacientDashboard" class="nav-item" class:list={[ 'nav-item', { active: Astro.url.pathname === '/pacientDashboard' } ]}>
-          <i data-lucide="home"></i><span>Dashboard</span>
+      
+      <nav class="sidebar-nav">
+        <a href="/dashboard" class="nav-item">
+          <i data-lucide="home"></i>
+          Dashboard
         </a>
-        <a href="/pacientDashboard/chats" class:list={[ 'nav-item', { active: Astro.url.pathname === '/pacientDashboard/chats' } ]}>
-          <i data-lucide="message-circle"></i><span>Chat</span>
+        <a href="/dashboard/appointments" class="nav-item">
+          <i data-lucide="calendar"></i>
+          Agendamentos
         </a>
-        <a href="/pacientDashboard/appointments" class:list={[ 'nav-item', { active: Astro.url.pathname === '/pacientDashboard/appointments' } ]}>
-          <i data-lucide="calendar"></i><span>Agendamentos</span>
+        <a href="/dashboard/chats" class="nav-item active">
+          <i data-lucide="message-circle"></i>
+          Conversas
         </a>
-        <a href="/pacientDashboard/profile" class:list={[ 'nav-item', { active: Astro.url.pathname === '/pacientDashboard/profile' } ]}>
-          <i data-lucide="settings"></i><span>Perfil</span>
+        <a href="/dashboard/profile" class="nav-item">
+          <i data-lucide="user"></i>
+          Perfil
         </a>
       </nav>
-      <div class="logout-section">
-        <div class="nav-item" onclick="window.logout()">
-          <i data-lucide="log-out"></i><span>Sair</span>
+      
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar" id="userAvatar">JD</div>
+          <div class="user-details">
+            <h4 id="userName">Usuário</h4>
+            <p id="userType">Carregando...</p>
+          </div>
         </div>
       </div>
     </div>
-    <!-- Main Content -->
+
     <div class="main-content">
       <div class="chat-container">
         <div class="chat-sidebar">
           <div class="chat-header">
             <h3>Conversas</h3>
-            <button class="new-chat-btn" id="newChatBtn"><i data-lucide="plus"></i> Nova</button>
+            <button class="new-chat-btn" id="newChatBtn">
+              <i data-lucide="plus"></i>
+              Nova
+            </button>
           </div>
+          
           <div class="search-bar">
-            <input type="text" id="searchInput" class="search-input" placeholder="Buscar..." />
+            <input type="text" class="search-input" placeholder="Buscar conversas..." id="searchInput">
           </div>
-          <div class="chat-list" id="chatList"><div class="loading">Carregando...</div></div>
+          
+          <div class="chat-list" id="chatList">
+            <div class="loading">Carregando conversas...</div>
+          </div>
         </div>
+        
         <div class="chat-main" id="chatMain">
           <div class="empty-state" id="emptyState">
             <i data-lucide="message-circle"></i>
@@ -204,10 +581,14 @@
           <h3>Nova Conversa</h3>
           <button class="close-btn" id="closeModalBtn">&times;</button>
         </div>
+        
         <div class="form-group">
-          <label id="selectLabel" for="userSelect">Selecionar:</label>
-          <select id="userSelect"><option value="">Carregando...</option></select>
+          <label id="selectLabel">Selecionar:</label>
+          <select id="userSelect">
+            <option value="">Carregando...</option>
+          </select>
         </div>
+        
         <div class="modal-actions">
           <button class="btn-secondary" id="cancelBtn">Cancelar</button>
           <button class="btn-primary" id="createChatBtn">Criar Conversa</button>
@@ -217,64 +598,445 @@
 
     <script>
       document.addEventListener("DOMContentLoaded", async () => {
-        /* Authentication & API setup */
+        // Verificar autenticação
         const userId = localStorage.getItem("usuario_id");
         const userType = localStorage.getItem("tipo_usuario");
-        if (!userId || !userType) return window.location.href = "/login";
+        
+        if (!userId || !userType) {
+          window.location.href = "/login";
+          return;
+        }
+
+        // Configurações da API
         const API_BASE_URL = "https://medfinder-fastapi.azurewebsites.net";
         const WS_BASE_URL = "wss://medfinder-fastapi.azurewebsites.net";
-
-        /* DOM Elements */
+        
+        // Elementos do DOM
+        const chatListEl = document.getElementById("chatList");
+        const chatMainEl = document.getElementById("chatMain");
+        const emptyStateEl = document.getElementById("emptyState");
         const newChatBtn = document.getElementById("newChatBtn");
         const newChatModal = document.getElementById("newChatModal");
         const closeModalBtn = document.getElementById("closeModalBtn");
         const cancelBtn = document.getElementById("cancelBtn");
         const createChatBtn = document.getElementById("createChatBtn");
         const userSelect = document.getElementById("userSelect");
-        const chatListEl = document.getElementById("chatList");
-        const chatMainEl = document.getElementById("chatMain");
-        const emptyStateEl = document.getElementById("emptyState");
+        const selectLabel = document.getElementById("selectLabel");
         const searchInput = document.getElementById("searchInput");
-        let convs = [], allUsers = [], activeConv = null, socket = null;
 
-        /* Prevent modal on load */
-        newChatModal.style.display = 'none';
+        // Estado da aplicação
+        let conversations = [];
+        let allUsers = [];
+        let activeConversation = null;
+        let socket = null;
+        let chatMessagesEl = null;
+        let messageInputEl = null;
+        let sendBtnEl = null;
 
-        /* Load & render conversations */
-        async function loadConvs(filter = '') {
-          const res = await fetch(`${API_BASE_URL}/usuarios/${userId}/conversas`);
-          convs = await res.json();
-          renderList(filter);
+        // Inicializar sidebar do usuário
+        async function initializeUserInfo() {
+          try {
+            const endpoint = userType === 'paciente' ? 'pacientes' : 'medicos';
+            const response = await fetch(`${API_BASE_URL}/${endpoint}/${userId}`);
+            
+            if (response.ok) {
+              const userData = await response.json();
+              const userName = userData.nome || 'Usuário';
+              const userAvatar = userName.split(' ').map(n => n[0]).join('').toUpperCase();
+              
+              document.getElementById('userName').textContent = userName;
+              document.getElementById('userType').textContent = userType === 'paciente' ? 'Paciente' : 'Médico';
+              document.getElementById('userAvatar').textContent = userAvatar;
+            }
+          } catch (error) {
+            console.error('Erro ao carregar informações do usuário:', error);
+          }
         }
-        function renderList(filter) {
+
+        // Carregar conversas
+        async function loadConversations() {
+          if (!chatListEl) return;
+          
+          try {
+            const response = await fetch(`${API_BASE_URL}/usuarios/${userId}/conversas`);
+            
+            if (!response.ok) {
+              throw new Error('Erro ao carregar conversas');
+            }
+            
+            conversations = await response.json();
+            renderConversations();
+            
+          } catch (error) {
+            console.error('Erro ao carregar conversas:', error);
+            chatListEl.innerHTML = '<div class="error-message">Erro ao carregar conversas</div>';
+          }
+        }
+
+        // Renderizar lista de conversas
+        function renderConversations(filter = '') {
+          if (!chatListEl) return;
+          
+          if (conversations.length === 0) {
+            chatListEl.innerHTML = '<div class="loading">Nenhuma conversa encontrada</div>';
+            return;
+          }
+
+          const filteredConversations = conversations.filter(conv => {
+            const otherUserName = userType === 'paciente' ? conv.MedicoNome : conv.PacienteNome;
+            return otherUserName.toLowerCase().includes(filter.toLowerCase());
+          });
+
           chatListEl.innerHTML = '';
-          (convs.filter(c => ((userType==='paciente'?c.MedicoNome:c.PacienteNome)
-            .toLowerCase().includes(filter.toLowerCase()))).length || [])
-            .forEach(c => {
-              const name = userType==='paciente'?c.MedicoNome:c.PacienteNome;
-              const div = document.createElement('div'); div.className='chat-item';
-              div.innerHTML = `<div class="chat-item-header"><span class="chat-item-name">${name}</span></div>`;
-              div.onclick = ()=>selectConv(c);
-              chatListEl.appendChild(div);
-            });
-          if (!convs.length) chatListEl.innerHTML = '<div class="loading">Nenhuma conversa</div>';
+          
+          filteredConversations.forEach(conv => {
+            const otherUserName = userType === 'paciente' ? conv.MedicoNome : conv.PacienteNome;
+            const otherUserType = userType === 'paciente' ? 'Médico' : 'Paciente';
+            
+            const item = document.createElement('div');
+            item.className = 'chat-item';
+            item.dataset.convoId = conv.ConversaID;
+            
+            item.innerHTML = `
+              <div class="chat-item-header">
+                <span class="chat-item-name">${otherUserName}</span>
+                <span class="chat-item-time">Agora</span>
+              </div>
+              <div class="chat-item-preview">${otherUserType} • Clique para conversar</div>
+            `;
+            
+            item.addEventListener('click', () => selectConversation(conv));
+            chatListEl.appendChild(item);
+          });
         }
 
-        /* Show/hide modal */
-        newChatBtn.onclick = async () => { newChatModal.style.display='flex';
-          const res = await fetch(`${API_BASE_URL}/${userType==='paciente'?'medicos':'pacientes'}`);
-          allUsers = await res.json(); userSelect.innerHTML = '<option value="">Selecione...</option>';
-          allUsers.forEach(u=> userSelect.innerHTML += `<option value="${u.id}">${u.nome}</option>`);
-          document.getElementById('selectLabel').textContent = userType==='paciente'?'Selecionar Médico:':'Selecionar Paciente:';
-        };
-        [closeModalBtn,cancelBtn].forEach(btn=>btn.onclick=()=>newChatModal.style.display='none');
-        createChatBtn.onclick = async () => { /* create logic */ };
-        window.onclick = e=>{ if(e.target===newChatModal) newChatModal.style.display='none'; };
-        searchInput.oninput = e=>renderList(e.target.value);
+        // Selecionar conversa
+        async function selectConversation(conv) {
+          activeConversation = conv;
+          
+          // Atualizar UI
+          document.querySelectorAll('.chat-item').forEach(item => {
+            item.classList.toggle('active', item.dataset.convoId == conv.ConversaID);
+          });
 
-        /* Conversation selection & chat rendering (omitted for brevity) */
+          // Renderizar interface do chat
+          renderChatInterface(conv);
+          
+          // Carregar histórico e conectar WebSocket
+          await loadMessageHistory(conv.ConversaID);
+          connectWebSocket(conv.ConversaID);
+        }
 
-        await loadConvs();
+        // Renderizar interface do chat
+        function renderChatInterface(conv) {
+          const otherUserName = userType === 'paciente' ? conv.MedicoNome : conv.PacienteNome;
+          const otherUserInitials = otherUserName.split(' ').map(n => n[0]).join('').toUpperCase();
+          
+          chatMainEl.innerHTML = `
+            <div class="chat-main-header">
+              <div class="chat-avatar">${otherUserInitials}</div>
+              <div>
+                <div style="font-weight: 600;">${otherUserName}</div>
+                <div style="font-size: 0.8rem; color: var(--text-light);">${userType === 'paciente' ? 'Médico' : 'Paciente'}</div>
+              </div>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+              <div class="loading">Carregando mensagens...</div>
+            </div>
+            
+            <div class="chat-input-area">
+              <textarea class="chat-input" id="messageInput" placeholder="Digite sua mensagem..." rows="1"></textarea>
+              <button class="send-btn" id="sendBtn">
+                <i data-lucide="send"></i>
+                Enviar
+              </button>
+            </div>
+          `;
+
+          // Atualizar referências dos elementos
+          chatMessagesEl = document.getElementById('chatMessages');
+          messageInputEl = document.getElementById('messageInput');
+          sendBtnEl = document.getElementById('sendBtn');
+
+          // Configurar eventos
+          sendBtnEl.addEventListener('click', sendMessage);
+          messageInputEl.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              sendMessage();
+            }
+          });
+
+          // Auto-resize do textarea
+          messageInputEl.addEventListener('input', () => {
+            messageInputEl.style.height = 'auto';
+            messageInputEl.style.height = messageInputEl.scrollHeight + 'px';
+          });
+
+          // Recriar ícones do Lucide
+          if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+          }
+        }
+
+        // Carregar histórico de mensagens
+        async function loadMessageHistory(convoId) {
+          if (!chatMessagesEl) return;
+          
+          try {
+            const response = await fetch(`${API_BASE_URL}/historico/${convoId}`);
+            
+            if (!response.ok) {
+              throw new Error('Erro ao carregar histórico');
+            }
+            
+            const messages = await response.json();
+            chatMessagesEl.innerHTML = '';
+            
+            if (messages.length === 0) {
+              chatMessagesEl.innerHTML = '<div class="loading">Nenhuma mensagem ainda. Seja o primeiro a enviar!</div>';
+              return;
+            }
+            
+            messages.forEach(msg => renderMessage(msg));
+            scrollToBottom();
+            
+          } catch (error) {
+            console.error('Erro ao carregar histórico:', error);
+            chatMessagesEl.innerHTML = '<div class="error-message">Erro ao carregar mensagens</div>';
+          }
+        }
+
+        // Conectar WebSocket
+        function connectWebSocket(convoId) {
+          if (socket) {
+            socket.close();
+          }
+          
+          socket = new WebSocket(`${WS_BASE_URL}/ws/${convoId}/${userId}`);
+          
+          socket.onopen = () => {
+            console.log('WebSocket conectado');
+          };
+          
+          socket.onmessage = (event) => {
+            try {
+              const message = JSON.parse(event.data);
+              
+              if (message.error) {
+                console.error('Erro do WebSocket:', message.error);
+                return;
+              }
+              
+              if (activeConversation && message.conversa_id === activeConversation.ConversaID) {
+                const msgData = {
+                  RemetenteUsuarioID: message.remetente_id,
+                  Texto: message.texto,
+                  DataEnvio: message.data_envio || new Date().toISOString()
+                };
+                renderMessage(msgData);
+                scrollToBottom();
+              }
+            } catch (error) {
+              console.error('Erro ao processar mensagem WebSocket:', error);
+            }
+          };
+          
+          socket.onerror = (error) => {
+            console.error('Erro WebSocket:', error);
+          };
+          
+          socket.onclose = () => {
+            console.log('WebSocket desconectado');
+          };
+        }
+
+        // Renderizar mensagem
+        function renderMessage(msg) {
+          if (!chatMessagesEl) return;
+          
+          const isSent = msg.RemetenteUsuarioID == userId;
+          const msgEl = document.createElement('div');
+          msgEl.className = `message ${isSent ? 'sent' : 'received'}`;
+          
+          const time = msg.DataEnvio ? new Date(msg.DataEnvio).toLocaleTimeString('pt-BR', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          }) : '';
+          
+          msgEl.innerHTML = `
+            <div class="message-content">${msg.Texto}</div>
+            ${time ? `<div class="message-time">${time}</div>` : ''}
+          `;
+          
+          chatMessagesEl.appendChild(msgEl);
+        }
+
+        // Enviar mensagem
+        function sendMessage() {
+          if (!socket || socket.readyState !== WebSocket.OPEN || !activeConversation || !messageInputEl) {
+            return;
+          }
+          
+          const text = messageInputEl.value.trim();
+          if (!text) return;
+
+          const otherUserId = userType === 'paciente' 
+            ? activeConversation.MedicoUsuarioID 
+            : activeConversation.PacienteUsuarioID;
+
+          const payload = {
+            texto: text,
+            destinatario_id: otherUserId
+          };
+          
+          try {
+            socket.send(JSON.stringify(payload));
+            
+            // Renderizar mensagem localmente
+            const msgData = {
+              RemetenteUsuarioID: parseInt(userId),
+              Texto: text,
+              DataEnvio: new Date().toISOString()
+            };
+            renderMessage(msgData);
+            
+            messageInputEl.value = '';
+            messageInputEl.style.height = 'auto';
+            scrollToBottom();
+            
+          } catch (error) {
+            console.error('Erro ao enviar mensagem:', error);
+          }
+        }
+
+        // Scroll para o final das mensagens
+        function scrollToBottom() {
+          if (chatMessagesEl) {
+            chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+          }
+        }
+
+        // Carregar usuários disponíveis
+        async function loadAvailableUsers() {
+          try {
+            const endpoint = userType === 'paciente' ? 'medicos' : 'pacientes';
+            const response = await fetch(`${API_BASE_URL}/${endpoint}`);
+            
+            if (!response.ok) {
+              throw new Error('Erro ao carregar usuários');
+            }
+            
+            allUsers = await response.json();
+            
+            userSelect.innerHTML = '<option value="">Selecione...</option>';
+            allUsers.forEach(user => {
+              const option = document.createElement('option');
+              option.value = user.id;
+              option.textContent = user.nome;
+              userSelect.appendChild(option);
+            });
+            
+            selectLabel.textContent = userType === 'paciente' ? 'Selecionar Médico:' : 'Selecionar Paciente:';
+            
+          } catch (error) {
+            console.error('Erro ao carregar usuários:', error);
+            userSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+          }
+        }
+
+        // Criar nova conversa
+        async function createNewConversation() {
+          const selectedUserId = userSelect.value;
+          if (!selectedUserId) {
+            alert('Por favor, selecione um usuário');
+            return;
+          }
+
+          try {
+            createChatBtn.disabled = true;
+            createChatBtn.textContent = 'Criando...';
+            
+            const response = await fetch(`${API_BASE_URL}/conversas/`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                id_usuario1: parseInt(userId),
+                id_usuario2: parseInt(selectedUserId)
+              })
+            });
+
+            if (!response.ok) {
+              throw new Error('Erro ao criar conversa');
+            }
+
+            const result = await response.json();
+            // Fechar modal e recarregar conversas
+            newChatModal.style.display = 'none';
+            userSelect.value = '';
+            await loadConversations();
+            
+            // Selecionar a nova conversa criada
+            const newConv = conversations.find(c => c.ConversaID === result.conversa_id);
+            if (newConv) {
+              selectConversation(newConv);
+            }
+            
+          } catch (error) {
+            console.error('Erro ao criar conversa:', error);
+            alert('Erro ao criar conversa. Tente novamente.');
+          } finally {
+            createChatBtn.disabled = false;
+            createChatBtn.textContent = 'Criar Conversa';
+          }
+        }
+
+        // Event Listeners
+        newChatBtn?.addEventListener('click', () => {
+          newChatModal.style.display = 'block';
+          loadAvailableUsers();
+        });
+
+        closeModalBtn?.addEventListener('click', () => {
+          newChatModal.style.display = 'none';
+        });
+
+        cancelBtn?.addEventListener('click', () => {
+          newChatModal.style.display = 'none';
+        });
+
+        createChatBtn?.addEventListener('click', createNewConversation);
+
+        // Busca em tempo real
+        searchInput?.addEventListener('input', (e) => {
+          renderConversations(e.target.value);
+        });
+
+        // Fechar modal ao clicar fora
+        newChatModal?.addEventListener('click', (e) => {
+          if (e.target === newChatModal) {
+            newChatModal.style.display = 'none';
+          }
+        });
+
+        // Inicializar aplicação
+        await initializeUserInfo();
+        await loadConversations();
+
+        // Recriar ícones do Lucide
+        if (typeof lucide !== 'undefined') {
+          lucide.createIcons();
+        }
+
+        // Cleanup ao fechar a página
+        window.addEventListener('beforeunload', () => {
+          if (socket) {
+            socket.close();
+          }
+        });
       });
     </script>
   </body>
